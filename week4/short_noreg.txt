@@ -1,0 +1,4 @@
+Kommunenummer	Stadnamn	Prioritet	Stadtype nynorsk	Stadtype bokmål	Stadtype engelsk	Kommune	Fylke	Lat	Lon	Høgd	Nynorsk	Bokmål	Engelsk
+101	Asak kirke	55	Kyrkje	Kirke	Church	Halden	Østfold	59.14465	11.45458		http://www.yr.no/stad/Noreg/Østfold/Halden/Asak_kirke/varsel.xml	http://www.yr.no/sted/Norge/Østfold/Halden/Asak_kirke/varsel.xml	http://www.yr.no/place/Norway/Østfold/Halden/Asak_kirke/forecast.xml
+101	Berg kirke	36	Kyrkje	Kirke	Church	Halden	Østfold	59.13783	11.32945		http://www.yr.no/stad/Noreg/Østfold/Halden/Berg_kirke/varsel.xml	http://www.yr.no/sted/Norge/Østfold/Halden/Berg_kirke/varsel.xml	http://www.yr.no/place/Norway/Østfold/Halden/Berg_kirke/forecast.xml
+101	Brekke	56	Sluse	Sluse	Lock	Halden	Østfold	59.14785	11.55603		http://www.yr.no/stad/Noreg/Østfold/Halden/Brekke~35224/varsel.xml	http://www.yr.no/sted/Norge/Østfold/Halden/Brekke~35224/varsel.xml	http://www.yr.no/place/Norway/Østfold/Halden/Brekke~35224/forecast.xml
