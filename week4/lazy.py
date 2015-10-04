@@ -6,9 +6,17 @@ except:
    import pickle
 
 class Lazy:
-    def __init__(self, func, timestamp_arg=None, func_name='html'):
-        self.timestamp_arg = timestamp_arg
-        self.func_name     = func_name
+    """
+    This class takes a function as argument and stores the results of calls
+    to a separate buffer file. When a argument is not unique, the buffered
+    results will be used.
+    """
+    def __init__(self, func, buffer_is_valid=3600*6, func_name='html'):
+        """
+        Initiate and check if buffer exist. If not, create a new empty dict.
+        """
+        self.buffer_is_valid = buffer_is_valid
+        self.func_name       = func_name
         self.func = func # get_html_content(url)
         if os.path.isfile('buffer_%s.dat' %self.func_name): # If buffer exist, load it
             try:
@@ -19,15 +27,19 @@ class Lazy:
             self.buffer = {}
 
     def __call__(self, arg):
-        timestamp_at_call = int(round( time() )) # Seconds since epoch
+        """
+        When called, checks if arg is a key in the buffered dictionary. If true,
+        return from buffer. Else, call the original function self.func(arg)
+        and save return to buffer.
+        """
+        timestamp_at_call = time() # Seconds since epoch
+
         if arg in self.buffer: # If in buffer, return this
             if self.func_name == 'dummy': # Tell the world that buffer was used (if tested)
                 print "Buffer used!"
-            timestamp_when_buffered = self.buffer[arg][0]
-            seconds = 10
-            if timestamp_at_call < timestamp_when_buffered + seconds:
-                #print "time at call:", timestamp_at_call, "time when bufferde", timestamp_when_buffered
-                #print "found current url in buffer:", arg
+            timestamp_when_buffered = self.buffer[arg][0] # Dict saves a tuple of timestamp and html
+
+            if timestamp_at_call < timestamp_when_buffered + self.buffer_is_valid:
                 return self.buffer[arg][1]
             else:
                 del self.buffer[arg] # Remove old weather data

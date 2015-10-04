@@ -21,11 +21,19 @@ def get_html_content(url):
 
 
 def get_list_of_results(place):
+    """
+    By using regular expressions, we search through 'http://fil.nrk.no/yr/viktigestader/noreg.txt'
+    for urls [english] matching either 'stadnamn', 'kommune' or 'fylke'.
+    Function takes exactly one argument: the name of a place to look for [string].
+    Argument can contain multiple wildcards i.e. "*kirke*" to return a bunch of urls
+    """
     url  = 'http://fil.nrk.no/yr/viktigestader/noreg.txt'
-    #html = get_html_content(url)
+    buffer_is_valid = time() + 86400 # Buffer is valid for 24 hours
+    lazyhtml = Lazy(get_html_content,buffer_is_valid,'yrtxt') # Will put yr.no txt-file in buffer
+    html     = lazyhtml(url)
 
-    html_file = open('noreg.txt', 'r')
-    html      = html_file.read(); html_file.close()
+    #html_file = open('noreg.txt', 'r')
+    #html      = html_file.read(); html_file.close()
     location  = place
 
     # If empty string is provided, return links for all entries in list
@@ -66,7 +74,7 @@ def get_list_of_results(place):
 def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
     """
     Returns two list of maximum 100 entries with places and raw weather data.
-    The selection is by default ordered.
+    The selection is by default ordered and limited.
     """
     warning = False; skip_html_weather_append = False
     actual_number_of_urls = len(list_of_urls)
@@ -80,8 +88,9 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
         print "\nWarning: Too many urls given. \nWill show weather forecast for the first 100 locations. May take some time"
         warning = True; number_of_urls = 100
 
-    html_place = []; html_weather = []     # Will contain location and raw weather data
-    lazy_get_html = Lazy(get_html_content) # Improve speed with buffering
+    html_place = []; html_weather = [] # Will contain location and raw weather data
+    buffer_is_valid = time() + 3600*6  # Buffer is valid for 6 hours
+    lazy_get_html = Lazy(get_html_content,buffer_is_valid) # Improve speed with buffering. Valid for 6 hours
 
     if shuffle_urls:
         if actual_number_of_urls >= 110:
