@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, urllib, re, codecs, time
+import sys, urllib, re, codecs
 from random import sample
+from time import time
 from lazy import Lazy
 
 def get_html_content(url):
-    response = urllib.urlopen(url)
+    try:
+        response = urllib.urlopen(url)
+    except:
+        print "\nError! Make sure you are connected to the internet, and try again!"; sys.exit(1)
     html     = response.read()
     response.close()
     return html
@@ -27,9 +31,10 @@ def get_list_of_results(place):
         location = re.sub('\*', '.*', location)
 
     # Fix that norwegian special characters dosnt work with regex case insensitivity
-    location = re.sub('æ', '[æÆ]', location)
-    location = re.sub('ø', '[øØ]', location)
-    location = re.sub('å', '[åÅ]', location)
+    # for the most relevant cases ('place' starts with a capital letter)
+    location = re.sub('^æ', 'Æ', location)
+    location = re.sub('^ø', 'Ø', location)
+    location = re.sub('^å', 'Å', location)
 
     regular_expr = 'http://www\.yr\.no/place/Norway/[^/]*/[^/]*/' + location + '/forecast.xml'
     list_of_results = re.findall(regular_expr, html, re.I) # First search after 'stadnamn' (Location name)
@@ -43,6 +48,9 @@ def get_list_of_results(place):
         print "No 'kommune ' found. Trying to search 'fylke'"
         regular_expr = 'http://www\.yr\.no/place/Norway/' + location + '/[^/]*/[^/]*/forecast.xml'
         list_of_results = re.findall(regular_expr, html, re.I)
+
+    if len(list_of_results) == 0:
+        print "No 'fylke   ' found. Returning empty list"
 
     # Remove duplicates while keeping the ordering of elements (i.e. urls)
     list_of_results = [i for n, i in enumerate(list_of_results) if i not in list_of_results[:n]]
@@ -213,8 +221,11 @@ if __name__ == '__main__':
         print "Hour or minute not in valid range, [0-23] and [0-59]\nExiting..."
         import sys; sys.exit(1)
 
+    t = time()
     # One call to rule them all i.e. find news about the weather
     print weather_update(place,hour,minute)
+
+    print "time taken:", time()-t, 'sec'
 
     # Find max/min temperatures
     #print "When searcing 100 random places in Norway:"
