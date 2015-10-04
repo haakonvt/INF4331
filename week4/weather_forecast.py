@@ -2,10 +2,15 @@
 # -*- coding: utf-8 -*-
 import sys, urllib, re, codecs
 from random import sample
-from time import time
+from time import *
 from lazy import Lazy
 
 def get_html_content(url):
+    """
+    Function takes exactly one argument: an url (string) and returns the html of that url.
+    """
+    if not isinstance(url, basestring):
+        "The url must be a string! Exiting!"; sys.exit(1)
     try:
         response = urllib.urlopen(url)
     except:
@@ -122,7 +127,7 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
     return html_place, html_weather
 
 
-def weather_update(place,hour=0,minute=0,shuffle_urls=False,return_extreme=False):
+def weather_update(place,hour=0,minute=0,shuffle_urls=False,return_extreme=False,ignore_print=False):
     # Step 0) If main isnt run, must check that [hour] and [minute] are acceptable
     if not isinstance(hour, (int, long)) or not isinstance(minute, (int, long)):
         print "[Hour] and/or [minute] not INTEGER(S). Please specify hour [0-23] and minute [0-59]\nExiting..."; sys.exit(1)
@@ -162,7 +167,7 @@ def weather_update(place,hour=0,minute=0,shuffle_urls=False,return_extreme=False
             month = int(key_weather_data[k][1])
             day   = int(key_weather_data[k][2])
             date_stamp = "%i-%.2i-%.2i  %.2i:%.2i" %(year, month, day, hour, minute)
-            if return_extreme:
+            if return_extreme and not ignore_print:
                 print date_stamp
 
         summary  =   key_weather_data[k][8]
@@ -203,9 +208,50 @@ def find_extreme_temps():
     print "Minimum temperature of %.0f deg C, found here:\n" %min_T, min_T_str
 
 
+def test_4_1():
+    url      = 'http://www.islostarepeat.com/'
+    html     = get_html_content(url)
+
+    ref_page = open('IsLostaRepeat.html','r') # Downloaded from web
+    ref_read = ref_page.read(); ref_page.close()
+
+    html     = re.sub('\s+', '', html)      # Strip all whitespaces
+    ref_read = re.sub('\s+', '', ref_read)
+
+    assert html == ref_read
+
+
+def test_4_2():
+    exact_url = 'http://www.yr.no/place/Norway/Østfold/Sarpsborg/Hannestad/forecast.xml'
+    place     = 'Hannestad'
+    url_list  = get_list_of_results(place)
+    assert len(url_list) == 1
+    assert url_list[0] == exact_url
+
+
+def test_4_3():
+    time_now = localtime()
+    place    = 'Hannestad'
+    hour     = time_now[3] + 1 # Get the tm_hour and add '1' to get the earliest time interval at yr
+    if hour == 24:
+        hour = 0
+    temp, a, b, c = weather_update(place, hour, 0, return_extreme=True,ignore_print=True)
+    assert temp < 50 and temp > -50
+
+
+def test_4_4():
+    def dummy(x):
+        print 'Function was evaluated (buffer NOT used)', x
+        return x+1
+    lazytest = Lazy(dummy,func_name='dummy')
+
+    print lazytest(3)
+    print lazytest(3)
+    print lazytest(-2)
 
 #----MAIN----#
 if __name__ == '__main__':
+    """
     place  = raw_input('\nPlease input a location to find weather forecast: ')
     print '\nPlease specify what time in the future you want a weather update for:'
     try:
@@ -220,13 +266,16 @@ if __name__ == '__main__':
     if hour < 0 or hour > 23 or minute < 0 or minute > 59:
         print "Hour or minute not in valid range, [0-23] and [0-59]\nExiting..."
         import sys; sys.exit(1)
-
+    """
     t = time()
     # One call to rule them all i.e. find news about the weather
-    print weather_update(place,hour,minute)
+    #print weather_update(place,hour,minute)
 
-    print "time taken:", time()-t, 'sec'
+    #print "time taken:", time()-t, 'sec'
 
     # Find max/min temperatures
     #print "When searcing 100 random places in Norway:"
     #find_extreme_temps()
+
+    # Run all tests:
+    test_4_1(); test_4_2(); test_4_3(); test_4_4()
