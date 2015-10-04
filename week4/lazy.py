@@ -21,6 +21,8 @@ class Lazy:
     def __call__(self, arg):
         timestamp_at_call = int(round( time() )) # Seconds since epoch
         if arg in self.buffer: # If in buffer, return this
+            if self.func_name == 'dummy': # Tell the world that buffer was used (if tested)
+                print "Buffer used!"
             timestamp_when_buffered = self.buffer[arg][0]
             seconds = 10
             if timestamp_at_call < timestamp_when_buffered + seconds:

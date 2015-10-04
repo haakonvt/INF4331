@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, urllib, re, codecs
+import sys, urllib, re, codecs, os, glob
 from random import sample
 from time import *
 from lazy import Lazy
@@ -240,18 +240,29 @@ def test_4_3():
 
 
 def test_4_4():
+    # Need to remove buffer-file if it exist!
+    buffer_file = glob.glob("buffer_dummy.dat")[0]
+    os.remove(buffer_file)
+
     def dummy(x):
-        print 'Function was evaluated (buffer NOT used)', x
+        print 'Buffer NOT used!'
         return x+1
     lazytest = Lazy(dummy,func_name='dummy')
 
-    print lazytest(3)
-    print lazytest(3)
-    print lazytest(-2)
+    t1 = lazytest(3); t2 = lazytest(3)
+    assert t2 == 4
+
 
 #----MAIN----#
 if __name__ == '__main__':
+    """---------------
+    Run all tests:
+    - Can be run directly or via:
+    >> nosetests weather_forecast.py
+    ---------------
+    test_4_1(); test_4_2(); test_4_3(); test_4_4()
     """
+
     place  = raw_input('\nPlease input a location to find weather forecast: ')
     print '\nPlease specify what time in the future you want a weather update for:'
     try:
@@ -266,16 +277,10 @@ if __name__ == '__main__':
     if hour < 0 or hour > 23 or minute < 0 or minute > 59:
         print "Hour or minute not in valid range, [0-23] and [0-59]\nExiting..."
         import sys; sys.exit(1)
-    """
-    t = time()
-    # One call to rule them all i.e. find news about the weather
-    #print weather_update(place,hour,minute)
 
-    #print "time taken:", time()-t, 'sec'
+    ### One call to rule them all i.e. find news about the weather ###
+    print weather_update(place,hour,minute)
 
-    # Find max/min temperatures
+    ### Find max/min temperatures ###
     #print "When searcing 100 random places in Norway:"
     #find_extreme_temps()
-
-    # Run all tests:
-    test_4_1(); test_4_2(); test_4_3(); test_4_4()
