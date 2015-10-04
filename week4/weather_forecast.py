@@ -137,6 +137,13 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
 
 
 def weather_update(place,hour=0,minute=0,shuffle_urls=False,return_extreme=False,ignore_print=False):
+    """
+    This function takes at least three arguments 'place', 'hour' and 'minute' and returns the weather
+    forecast at the first incident that hour:minute occurs (i.e. max 24 hours) for a multiple of
+    locations matching the argument 'place'.
+    Optional arguemnts include 'shuffe urls', return the max/min temp (will override ordinary output)
+    and the ability to ignore print (for teseting purposes)
+    """
     # Step 0) If main isnt run, must check that [hour] and [minute] are acceptable
     if not isinstance(hour, (int, long)) or not isinstance(minute, (int, long)):
         print "[Hour] and/or [minute] not INTEGER(S). Please specify hour [0-23] and minute [0-59]\nExiting..."; sys.exit(1)
@@ -211,13 +218,18 @@ def weather_update(place,hour=0,minute=0,shuffle_urls=False,return_extreme=False
 
 
 def find_extreme_temps():
-    # Get highest and lowest temp at upcoming time 13:00 in a set of 100 (default=random) locations in Norway
+    """
+    Get highest and lowest temp at upcoming time 13:00 in a set of 100 (default=random) locations in Norway
+    """
     max_T, max_T_str, min_T, min_T_str = weather_update('',13,0,shuffle_urls=True,return_extreme=True)
     print "Maximum temperature of %.0f deg C, found here:\n" %max_T, max_T_str
     print "Minimum temperature of %.0f deg C, found here:\n" %min_T, min_T_str
 
 
 def test_4_1():
+    """
+    Test that urllib correctly copies html from websites
+    """
     url      = 'http://www.islostarepeat.com/'
     html     = get_html_content(url)
 
@@ -231,6 +243,9 @@ def test_4_1():
 
 
 def test_4_2():
+    """
+    Test that regex correctly matches 'Hannestad' to the right url
+    """
     exact_url = 'http://www.yr.no/place/Norway/Østfold/Sarpsborg/Hannestad/forecast.xml'
     place     = 'Hannestad'
     url_list  = get_list_of_results(place)
@@ -239,6 +254,9 @@ def test_4_2():
 
 
 def test_4_3():
+    """
+    Test that temperature at 'Hannestad' is in an acceptable range [-50, 50] deg C
+    """
     time_now = localtime()
     place    = 'Hannestad'
     hour     = time_now[3] + 1 # Get the tm_hour and add '1' to get the earliest time interval at yr
@@ -249,6 +267,10 @@ def test_4_3():
 
 
 def test_4_4():
+    """
+    Test that Lazy class correctly buffers a dummy function.
+    Easiest verified by call in program (prints out 'buffer used / not used')
+    """
     # Need to remove buffer-file if it exist!
     buffer_file = glob.glob("buffer_dummy.dat")[0]
     os.remove(buffer_file)
