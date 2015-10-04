@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys, urllib, re, codecs, time
 from random import sample
+from lazy import Lazy
 
 def get_html_content(url):
     response = urllib.urlopen(url)
@@ -24,6 +25,11 @@ def get_list_of_results(place):
     else:
         # If user input one/more wildcard, add a dot-character right before for regex-support
         location = re.sub('\*', '.*', location)
+
+    # Fix that norwegian special characters dosnt work with regex case insensitivity
+    location = re.sub('æ', '[æÆ]', location)
+    location = re.sub('ø', '[øØ]', location)
+    location = re.sub('å', '[åÅ]', location)
 
     regular_expr = 'http://www\.yr\.no/place/Norway/[^/]*/[^/]*/' + location + '/forecast.xml'
     list_of_results = re.findall(regular_expr, html, re.I) # First search after 'stadnamn' (Location name)
@@ -61,7 +67,8 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
         print "\nWarning: Too many urls given. \nWill show weather forecast for the first 100 locations. May take some time"
         warning = True; number_of_urls = 100
 
-    html_place   = []; html_weather = [] # Will contain location and raw weather data
+    html_place = []; html_weather = []     # Will contain location and raw weather data
+    lazy_get_html = Lazy(get_html_content) # Improve speed with buffering
 
     if shuffle_urls:
         if actual_number_of_urls >= 110:
@@ -79,7 +86,8 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
         if index+1 > limit: # Breaks loop after limit is reached
             break
         else:
-            current_html  = get_html_content(current_url)
+            #current_html  = get_html_content(current_url) # NO BUFFERING
+            current_html  = lazy_get_html(current_url) # WITH BUFFERING
             regex_place   = '\<location\>.*?\<name\>(.*?)<\/name\>'
             regex_weather = '\<tabular\>(.*?\<time\sfrom.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>)'
 
@@ -190,7 +198,6 @@ def find_extreme_temps():
 
 #----MAIN----#
 if __name__ == '__main__':
-    """
     place  = raw_input('\nPlease input a location to find weather forecast: ')
     print '\nPlease specify what time in the future you want a weather update for:'
     try:
@@ -205,10 +212,10 @@ if __name__ == '__main__':
     if hour < 0 or hour > 23 or minute < 0 or minute > 59:
         print "Hour or minute not in valid range, [0-23] and [0-59]\nExiting..."
         import sys; sys.exit(1)
-    """
+
     # One call to rule them all i.e. find news about the weather
-    #print weather_update(place,hour,minute)
+    print weather_update(place,hour,minute)
 
     # Find max/min temperatures
-    print "When searcing 100 random places in Norway:"
-    find_extreme_temps()
+    #print "When searcing 100 random places in Norway:"
+    #find_extreme_temps()
