@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, urllib, re, codecs, os, glob
+import sys, urllib, re, os, glob
 from random import sample
 from time import time,localtime
 from lazy import Lazy
@@ -28,13 +28,11 @@ def get_list_of_results(place):
     Argument can contain multiple wildcards i.e. "*kirke*" to return a bunch of urls
     """
     url  = 'http://fil.nrk.no/yr/viktigestader/noreg.txt'
-    buffer_is_valid = time() + 86400 # Buffer is valid for 24 hours
+    buffer_is_valid = time() + 86400 # Buffer file is valid for 24 hours
     lazyhtml = Lazy(get_html_content,buffer_is_valid,'yrtxt') # Will put yr.no txt-file in buffer
     html     = lazyhtml(url)
 
-    #html_file = open('noreg.txt', 'r')
-    #html      = html_file.read(); html_file.close()
-    location  = place
+    location = place
 
     # If empty string is provided, return links for all entries in list
     if location == '':
@@ -44,7 +42,7 @@ def get_list_of_results(place):
         location = re.sub('\*', '.*', location)
 
     # Fix that norwegian special characters dosnt work with regex case insensitivity
-    # for the most relevant cases ('place' starts with a capital letter)
+    # ...for the most relevant cases ('place' starts with a capital letter)
     location = re.sub('^æ', 'Æ', location)
     location = re.sub('^ø', 'Ø', location)
     location = re.sub('^å', 'Å', location)
@@ -76,42 +74,43 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
     Returns two list of maximum 100 entries with places and raw weather data.
     The selection is by default ordered and limited.
     """
-    warning = False; skip_html_weather_append = False
+    warning = False; skip_html_weather_append = False # Boolean expr. needed later in loop (if limit is reached etc.)
     actual_number_of_urls = len(list_of_urls)
-    number_of_urls        = len(list_of_urls) # Will be set to 100 (if more than 100)
+    number_of_urls        = len(list_of_urls) # Will be set to 100 (if more than 100) later
 
     if number_of_urls > 10: # Print out a progress bar if we got more than just a few urls to fetch..
         print_progress_bar = True
     else:
         print_progress_bar = False
+
     if number_of_urls > 100:
-        print "\nWarning: Too many urls found. \nWill show weather forecast for the first 100 locations. May take some time"
+        print "\nWarning: Too many urls found. \nWill show weather forecast for the first 100 locations."
+        print "May take some time, if not already fetched to buffer!"
         warning = True; number_of_urls = 100
 
     html_place = []; html_weather = [] # Will contain location and raw weather data
-    buffer_is_valid = time() + 3600*6  # Buffer is valid for 6 hours
+    buffer_is_valid = time() + 3600*6  # Buffer is valid for 6 hours which is the spacing between time intervals at yr.no
     lazy_get_html = Lazy(get_html_content,buffer_is_valid) # Improve speed with buffering. Valid for 6 hours
 
     if shuffle_urls:
         if actual_number_of_urls >= 110:
             list_of_urls = sample(list_of_urls, 110) # Assuming some very few urls are bad, we might need more than 100 to search from
         else:
-            list_of_urls = sample(list_of_urls, number_of_urls)
+            list_of_urls = sample(list_of_urls, number_of_urls) # Sample returns a list of random but unique elements from a given 'pool'
 
-    for index, current_url in enumerate(list_of_urls):
+    for index, current_url in enumerate(list_of_urls): # Loop through the found urls while keeping the track of the index
         if print_progress_bar:
             percent_fix_for_bad_urls = limit - 100 # If we need to skip some urls, make sure we still end at 100 % [if you think, really?!?, I strongly agree]
             percent = int(round(float(index)/(number_of_urls+percent_fix_for_bad_urls)*100))
             sys.stdout.write("\rFetching data... %d%% " % percent) # Print out a simple "progress bar" showing percent
             sys.stdout.flush()
 
-        if index+1 > limit: # Breaks loop after limit is reached
+        if index+1 > limit: # Breaks loop after limit is reached [limit can increase if some urls are bad, and the pool of urls are big enough]
             break
         else:
-            #current_html  = get_html_content(current_url) # NO BUFFERING
-            current_html  = lazy_get_html(current_url) # WITH BUFFERING
-            regex_place   = '\<location\>.*?\<name\>(.*?)<\/name\>'
-            regex_weather = '\<tabular\>(.*?\<time\sfrom.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>)'
+            current_html  = lazy_get_html(current_url) # Use buffering for potential (very high) speed-up
+            regex_place   = '\<location\>.*?\<name\>(.*?)<\/name\>' # Search and pick out just name of place
+            regex_weather = '\<tabular\>(.*?\<time\sfrom.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>.*?\<\/time\>)' # Search and pick out all info for the first 5 intervals
 
             p_place   = re.compile(regex_place, re.DOTALL)
             p_weather = re.compile(regex_weather, re.DOTALL)
@@ -120,7 +119,7 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
                 html_place.append(re.search(p_place, current_html).group(1))
             except AttributeError:
                 print "The current url is broken. Will skip and continue..."
-                skip_html_weather_append = True
+                skip_html_weather_append = True # Make sure to not add this to output
 
                 # If urls>100 and some urls are bad, we still want 100 results, not 99 nor 98 so we add 1 new for each bad url
                 # HOWEVER: If we dont have any more links, we must return just (i.e.) 99 or 98
@@ -144,7 +143,7 @@ def weather_update(place,hour=0,minute=0,shuffle_urls=False,return_extreme=False
     Optional arguemnts include 'shuffe urls', return the max/min temp (will override ordinary output)
     and the ability to ignore print (for teseting purposes)
     """
-    # Step 0) If main isnt run, must check that [hour] and [minute] are acceptable
+    # Step 0) If program isnt run as __main__, must check that [hour] and [minute] are acceptable
     if not isinstance(hour, (int, long)) or not isinstance(minute, (int, long)):
         print "[Hour] and/or [minute] not INTEGER(S). Please specify hour [0-23] and minute [0-59]\nExiting..."; sys.exit(1)
     if hour < 0 or hour > 23 or minute < 0 or minute > 59:
@@ -165,6 +164,7 @@ def weather_update(place,hour=0,minute=0,shuffle_urls=False,return_extreme=False
     for i,raw_weather in enumerate(html_weather):
         # Find all the specific weather data and save them as a list of tuples,
         # where each tuple (i.e. list element) correspond to one time interval at yr.no/../../..
+        # Explore exactly this regex here: https://regex101.com/r/jH9mB9/2
         regular_expr = '<time\sfrom="(\d{4})-(\d{2})-(\d{2})T(\d{2}):00:00"\sto="(\d{4})-(\d{2})-(\d{2})T(\d{2}):00:00.*?\<symbol\snumber=".*?name="(.*?)".*?\<precipitation\svalue="(.*?)".*?\<windSpeed\smps="(.*?)".*?\<temperature\sunit.*?value="(.*?)"'
         key_weather_data = re.findall(regular_expr, raw_weather, re.DOTALL)
 
