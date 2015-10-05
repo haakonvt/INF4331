@@ -29,18 +29,19 @@ class Lazy:
     def __call__(self, arg):
         """
         When called, checks if arg is a key in the buffered dictionary. If true,
-        return from buffer. Else, call the original function self.func(arg)
-        and save return to buffer.
+        and not outdated, return from buffer. Else, call the original function
+        self.func(arg) and save the return to buffer.
         """
         timestamp_at_call = time() # Seconds since epoch
 
         if arg in self.buffer: # If in buffer, return this
-            if self.func_name == 'dummy': # Tell the world that buffer was used (if tested)
-                print "Buffer used!"
             timestamp_when_buffered = self.buffer[arg][0] # Dict saves a tuple of timestamp and html
 
             if timestamp_at_call < timestamp_when_buffered + self.buffer_is_valid:
-                return self.buffer[arg][1]
+                if self.func_name == 'dummy': # Tell the world that buffer was used (if tested)
+                    print "Buffer used!"
+                buffered_result = self.buffer[arg][1]
+                return buffered_result
             else:
                 del self.buffer[arg] # Remove old weather data
 

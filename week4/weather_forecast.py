@@ -270,6 +270,10 @@ def test_4_4():
     """
     Test that Lazy class correctly buffers a dummy function.
     Easiest verified by call in program (prints out 'buffer used / not used')
+
+    >>> test_4_4()
+    Buffer NOT used!
+    Buffer used!
     """
     # Need to remove buffer-file if it exist!
     buffer_file = glob.glob("buffer_dummy.dat")[0]
@@ -280,19 +284,49 @@ def test_4_4():
         return x+1
     lazytest = Lazy(dummy,func_name='dummy')
 
-    t1 = lazytest(3); t2 = lazytest(3)
+    t1 = lazytest(3)
+    t2 = lazytest(3)
     assert t2 == 4
+
+
+def test_4_4_2():
+    """
+    1) Creates a dummy file with expired time stamp and ensures that it is replaced.
+    2) Creates a dummy file with unexpired time stamp and ensures that it isn't replaced.
+
+    >>> test_4_4_2()
+    Buffer NOT used!
+    Buffer NOT used!
+    ----------------
+    Buffer NOT used!
+    Buffer used!
+    """
+    for buffer_is_valid in [-10,10]:
+        # Need to remove buffer-files if they already exist!
+        buffer_file = glob.glob("buffer_dummy.dat")[0]
+        os.remove(buffer_file)
+
+        def dummy(x):
+            print 'Buffer NOT used!'
+            return x+1
+
+        lazytest = Lazy(dummy,buffer_is_valid,func_name='dummy')
+        t1 = lazytest(3) # Creates the dummy file
+        t2 = lazytest(3) # Replaces only if expired
+        assert t1 == t2
+        if buffer_is_valid < 0:
+            print '----------------'
 
 
 #----MAIN----#
 if __name__ == '__main__':
     """---------------
     Run all tests:
-    - Can be run directly or via:
+    - Can be run directly or via i.e.:
     >> nosetests weather_forecast.py
-    ---------------
-    test_4_1(); test_4_2(); test_4_3(); test_4_4()
-    """
+    (or some with doctest or/and py.test)
+    ---------------"""
+    #test_4_1(); test_4_2(); test_4_3(); test_4_4()
 
     place  = raw_input('\nPlease input a location to find weather forecast: ')
     print '\nPlease specify what time in the future you want a weather update for:'
