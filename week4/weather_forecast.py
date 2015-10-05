@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys, urllib, re, codecs, os, glob
 from random import sample
-from time import *
+from time import time,localtime
 from lazy import Lazy
 
 def get_html_content(url):
@@ -85,7 +85,7 @@ def retrieve_weather_raw_data(list_of_urls,shuffle_urls=False,limit=100):
     else:
         print_progress_bar = False
     if number_of_urls > 100:
-        print "\nWarning: Too many urls given. \nWill show weather forecast for the first 100 locations. May take some time"
+        print "\nWarning: Too many urls found. \nWill show weather forecast for the first 100 locations. May take some time"
         warning = True; number_of_urls = 100
 
     html_place = []; html_weather = [] # Will contain location and raw weather data
@@ -276,8 +276,9 @@ def test_4_4():
     Buffer used!
     """
     # Need to remove buffer-file if it exist!
-    buffer_file = glob.glob("buffer_dummy.dat")[0]
-    os.remove(buffer_file)
+    if os.path.isfile('buffer_dummy.dat'):
+        buffer_file = glob.glob("buffer_dummy.dat")[0]
+        os.remove(buffer_file)
 
     def dummy(x):
         print 'Buffer NOT used!'
@@ -302,9 +303,10 @@ def test_4_4_2():
     Buffer used!
     """
     for buffer_is_valid in [-10,10]:
-        # Need to remove buffer-files if they already exist!
-        buffer_file = glob.glob("buffer_dummy.dat")[0]
-        os.remove(buffer_file)
+        # Need to remove buffer-file if it already exist!
+        if os.path.isfile('buffer_dummy.dat'):
+            buffer_file = glob.glob("buffer_dummy.dat")[0]
+            os.remove(buffer_file)
 
         def dummy(x):
             print 'Buffer NOT used!'
@@ -313,20 +315,30 @@ def test_4_4_2():
         lazytest = Lazy(dummy,buffer_is_valid,func_name='dummy')
         t1 = lazytest(3) # Creates the dummy file
         t2 = lazytest(3) # Replaces only if expired
-        assert t1 == t2
         if buffer_is_valid < 0:
             print '----------------'
+
+
+def test_4_5():
+    """
+    Test that temperature at 'Hannestad' is in an acceptable range [-50, 50] deg C
+    at the next time 13:00 occurs
+    """
+    place = 'Hannestad'
+    hour  = 13
+    temp, a, b, c = weather_update(place, hour, 0, return_extreme=True,ignore_print=True)
+    assert temp < 50 and temp > -50
 
 
 #----MAIN----#
 if __name__ == '__main__':
     """---------------
     Run all tests:
-    - Can be run directly or via i.e.:
-    >> nosetests weather_forecast.py
-    (or some with doctest or/and py.test)
+    - Can be run directly or via:
+    >> py.test weather_forecast.py
+    (and some with doctest)
     ---------------"""
-    #test_4_1(); test_4_2(); test_4_3(); test_4_4()
+    #test_4_1(); test_4_2(); test_4_3(); test_4_4(); test_4_4_2(); test_4_5
 
     place  = raw_input('\nPlease input a location to find weather forecast: ')
     print '\nPlease specify what time in the future you want a weather update for:'
@@ -346,6 +358,7 @@ if __name__ == '__main__':
     ### One call to rule them all i.e. find news about the weather ###
     print weather_update(place,hour,minute)
 
+    #################################
     ### Find max/min temperatures ###
-    #print "When searcing 100 random places in Norway:"
-    #find_extreme_temps()
+    #################################
+    #print "When searcing 100 random places in Norway:"; find_extreme_temps()
