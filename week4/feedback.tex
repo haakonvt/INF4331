@@ -1,0 +1,116 @@
+\documentclass[a4paper]{article}
+
+% Import some useful packages
+\usepackage[margin=0.5in]{geometry} % narrow margins
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\definecolor{LightGray}{gray}{0.95}
+
+\title{Peer-review of assignment 4 for \textit{INF3331-HaakonVikor}}
+\author{Yrjan Skrimstad, Git-repo INF3331-Yrjan, {yrjansk@ulrik.uio.no} \\
+        Arild Lillegård, Git-repo INF3331-Arild, {arildlil@ulrik.uio.no} \\
+        Daniel Folgerø, Git-repo INF3331-Daniel, {danielfolgero@gmail.com}}
+\date{Deadline: Tuesday, 13. October 2015, 23:59:59.}
+\date{Deadline: Tuesday, 13. October 2015, 23:59:59.}
+
+\begin{document}
+\maketitle
+
+\section{Review}\label{sec:review}
+Test system: Python 2.7.10 - Debian Linux
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 4.1: Retrieve web page}
+\begin{itemize}
+\item You print the error message to stdout with print, perhaps it would be better if you threw an exception or printed the error to stderr with sys.stderr.write().
+\item Otherwise it seems to work as intended.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 4.2: Find link to location}
+\begin{minted}[bgcolor=LightGray, fontsize=\footnotesize]{python}
+regular_expr = 'http://www\.yr\.no/place/Norway/[^/]*/[^/]*/' + location + '/forecast.xml'
+\end{minted}
+The string here could be changed to include an r in front, e.g. r"content". That way you can avoid having to escape certain symbols like dot.\vspace{4mm}
+
+
+\begin{minted}[bgcolor=LightGray, fontsize=\footnotesize]{python}
+if location == '':
+\end{minted}
+This is not perfect python:\\
+\begin{minted}[bgcolor=LightGray, fontsize=\footnotesize]{python}
+if not location:
+\end{minted}
+This would perhaps be a bit nicer:\vspace{4mm}
+
+\begin{minted}[bgcolor=LightGray, fontsize=\footnotesize]{python}
+if len(list_of_results) == 0:
+\end{minted}
+Same here\\
+\begin{minted}[bgcolor=LightGray, fontsize=\footnotesize]{python}
+if not list_of_results:
+\end{minted}
+This would be prettier code that does the same.\\\vspace{5mm}
+
+Otherwise all the code seem to work fine and is well documented.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 4.3: Retrieve weather information}
+\begin{itemize}
+\item retrieve\_weather\_raw\_data() returns raw xml data not parsed data. It seems the assignment text wants parsed data.
+\item Code is hard to follow.
+\item Documentation is good.
+\item We really like the download status functionality!
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 4.4: Buffer all internet activity}
+\begin{itemize}
+\item Buffering works nicely, but we're having a hard time testing for obsolete buffering.
+\item Buffer does not seem to include the required timestamp argument and instead include a buffer\_is\_valid parameter.
+\item Code is nice, well documented and easy to follow.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 4.5: Create weather forecast}
+\begin{itemize}
+\item weather\_update() seems to be working nicely.
+\item weather\_update() is large, complex and somewhat hard to follow. Could perhaps be split into several functions ..?
+\item Documentation is fine.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 4.6: Testing the code}
+\begin{itemize}
+\item All tests pass.
+\item We're uncertain if the doctests in test\_4\_4() and test\_4\_4\_2() are used, and therefore uncertain about the correctness of those tests. In those two tests you could have used py.test's capsys-functionality shown here:\\ \href{https://pytest.org/latest/capture.html}{https://pytest.org/latest/capture.html}.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 4.7: Extreme places in Norway}
+\begin{itemize}
+	\item Code is fine, documentation is fine.
+    \item Seems to work as intended.
+\end{itemize}
+
+\section{Estimated points}\label{sec:points}
+Based on the point system (\href{http://www.uio.no/studier/emner/matnat/ifi/INF3331/h15/assignments/review_rules.pdf}{download link}),
+how many points would you give this solution.
+
+For example:
+\begin{itemize}
+\item -2 points for one to three tests not working/missing. At least we believe two of them not to be working correctly.
+\end{itemize}
+
+Total \noindent\textbf{28 out of 30 points}
+
+
+\bibliographystyle{plain}
+\bibliography{literature}
+
+\end{document}
