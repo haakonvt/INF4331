@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
-import numpy as np
-import sys
+import sys,time
 
 
 def SourceTermF_LIST(Nx,Ny):
@@ -14,7 +13,8 @@ def SourceTermF_LIST(Nx,Ny):
     return f
 
 
-def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,show_animation=False):
+def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
+                        show_animation=False, print_progress=False):
     """
     Solver for heat equation. ONLY pure python objects used.
     Dirichlet boundary conditions: ( u_edge = 0 )
@@ -57,11 +57,10 @@ def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,show_ani
                 plot_counter = 0        # Reset the counter
             plot_counter += 1
 
-        percent = t/float(t_end)*100.0 if t<t_end else 100
-        sys.stdout.write("\rRunning calculations... %d%% " % percent) # Print out a simple "progress bar" showing percent
-        sys.stdout.flush()
-
-
+        if print_progress:
+            percent = t/float(t_end)*100.0 if t<t_end else 100
+            sys.stdout.write("\rRunning calculations... %d%% " % percent) # Print out a simple "progress bar" showing percent
+            sys.stdout.flush()
     return u_new
 
 
@@ -71,8 +70,10 @@ if __name__ == '__main__':
 
     f = SourceTermF_LIST(Nx,Ny)
     dt = 0.1; t0 = 0; t_end = 1000; nu = 1.0
-    u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end)#,show_animation=True)
+    cpu_t0   = time.clock()
+    u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end)
+    cpu_time = time.clock() - cpu_t0
+    print "\nMax. temp.:", max(max(u)), "time taken:", cpu_time
 
-    print "\nMax. temp.:", max(max(u))
-    # Show the solution at the last timesteps
+    # Show the solution at the last timesteps (i.e. not close the plot..)
     raw_input('\nPress enter to quit...')
