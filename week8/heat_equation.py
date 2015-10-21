@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import sys,time
+import sys,time,copy
 
 
 def SourceTermF_LIST(Nx,Ny):
@@ -27,9 +27,9 @@ def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
         u.append([])
     for i in range(Nx):
         for j in range(Ny):
-            u[i].append(0)
+            u[i].append(float(0))
 
-    u_new = u[:] # Make a copy for the solution at the next timestep
+    u_new = copy.deepcopy(u) # Make a copy for the solution at the next timestep
 
     if show_animation:
         plt.ion()
@@ -40,13 +40,14 @@ def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
 
     # Loop over all timesteps
     while t < t_end:
-        u = u_new
         for i in range(1,Nx-1): # Not including first and last element
             for j in range(1,Ny-1):
                 u_new[i][j] = u[i][j] \
                             + dt*(nu*u[i-1][j] + nu*u[i][j-1] - 4*nu*u[i][j] \
                             +     nu*u[i][j+1] + nu*u[i+1][j] + f[i][j])
-        t += dt # Jump to next timestep
+        t += dt                    # Jump to next timestep
+        u = copy.deepcopy(u_new)   # Update u for next iteration (fast "deep copy")
+
 
         if show_animation:
             if plot_counter == plot_every_n_frame:
@@ -71,7 +72,7 @@ if __name__ == '__main__':
     f = SourceTermF_LIST(Nx,Ny)
     dt = 0.1; t0 = 0; t_end = 1000; nu = 1.0
     cpu_t0   = time.clock()
-    u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end)
+    u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end,print_progress=True)
     cpu_time = time.clock() - cpu_t0
     print "\nMax. temp.:", max(max(u)), "time taken:", cpu_time
 

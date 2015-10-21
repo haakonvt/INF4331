@@ -28,12 +28,11 @@ def SolverNumpy(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
         plot_every_n_frame = 10        # Plot every n frames
         plot_counter = 0               # Make sure to plot first frame
 
-    counter = 0
     # Loop over all timesteps
     while t < t_end:
         u[1:-1,1:-1] = u[1:-1,1:-1] \
                      + dt*(nu*u[:-2,1:-1] + nu*u[1:-1,:-2] - 4*nu*u[1:-1,1:-1] \
-                     +     nu*u[1:-1,2:] + nu*u[2:,1:-1] + f[1:-1,1:-1])
+                     +     nu*u[1:-1,2:]  + nu*u[2:,1:-1] + f[1:-1,1:-1])
         t += dt # Jump to next timestep
 
         if show_animation:
