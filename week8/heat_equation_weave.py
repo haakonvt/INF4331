@@ -17,25 +17,30 @@ def SolverWeave(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000):
     """
     t = t0
 
-    # Initiate the solution array for u_n
-    u     = np.zeros((Nx,Ny))
+    # Initiate the solution array for u and u_new (un)
+    u  = np.zeros((Nx,Ny))
+    un = np.zeros((Nx,Ny))
 
     code = """
     int t,i,j,max_steps;
-    max_steps = int(round(t_end/dt));
-    for (t=0; t<max_steps; t++){
+    for (t=0; t*dt<t_end+dt; t++){
         for (i=1; i<Nu[0]-1; i++) {
            for (j=1; j<Nu[1]-1; j++) {
-               U2(i,j) = U2(i,j) \
+               UN2(i,j) = U2(i,j) \
                         + dt*(nu*U2(i-1,j) + nu*U2(i,j-1) - 4*nu*U2(i,j) \
                         + nu*U2(i,j+1) + nu*U2(i+1,j) + F2(i,j));
+           }
+        }
+        for (i=1; i<Nu[0]-1; i++) {
+           for (j=1; j<Nu[1]-1; j++) {
+               U2(i,j) = UN2(i,j);
            }
         }
     }
     """
 
     # Loop over all timesteps
-    weave.inline(code, ['t_end','dt', 'u', 'f', 'nu'])
+    weave.inline(code, ['t_end','dt', 'u', 'un','f', 'nu'])
     return u
 
 
@@ -44,7 +49,7 @@ if __name__ == '__main__':
     Ny = 100 # Mesh-length in y-direction
 
     f = SourceTermF_ARRAY(Nx,Ny)
-    dt = 0.1; t0 = 0; t_end = 1000; nu = 1.0
+    dt = 0.1; t0 = 0; t_end = 200.0; nu = 1.0
     cpu_t0   = time.clock()
     u = SolverWeave(f,nu,dt,Nx,Ny,t0,t_end)
     cpu_time = time.clock() - cpu_t0

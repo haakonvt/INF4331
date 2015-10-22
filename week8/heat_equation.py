@@ -29,7 +29,7 @@ def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
         for j in range(Ny):
             u[i].append(float(0))
 
-    u_new = copy.deepcopy(u) # Make a copy for the solution at the next timestep
+    u_new = [row[:] for row in u] # Make a copy for the solution at the next timestep
 
     if show_animation:
         plt.ion()
@@ -45,9 +45,9 @@ def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
                 u_new[i][j] = u[i][j] \
                             + dt*(nu*u[i-1][j] + nu*u[i][j-1] - 4*nu*u[i][j] \
                             +     nu*u[i][j+1] + nu*u[i+1][j] + f[i][j])
-        t += dt                    # Jump to next timestep
-        u = copy.deepcopy(u_new)   # Update u for next iteration (fast "deep copy")
 
+        t += dt                         # Jump to next timestep
+        u = [row[:] for row in u_new]   # Update u for next iteration (much faster than "deep copy")
 
         if show_animation:
             if plot_counter == plot_every_n_frame:
@@ -70,9 +70,9 @@ if __name__ == '__main__':
     Ny = 100 # Mesh-length in y-direction
 
     f = SourceTermF_LIST(Nx,Ny)
-    dt = 0.1; t0 = 0; t_end = 1000; nu = 1.0
+    dt = 0.1; t0 = 0; t_end = 200; nu = 1.0
     cpu_t0   = time.clock()
-    u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end,print_progress=True)
+    u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end,show_animation=False,print_progress=False)
     cpu_time = time.clock() - cpu_t0
     print "\nMax. temp.:", max(max(u)), "time taken:", cpu_time
 
