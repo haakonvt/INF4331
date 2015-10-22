@@ -70,7 +70,7 @@ if __name__ == '__main__':
     Ny = 100 # Mesh-length in y-direction
 
     f = SourceTermF_LIST(Nx,Ny)
-    dt = 0.1; t0 = 0; t_end = 200; nu = 1.0
+    dt = 0.1; t0 = 0; t_end = 100; nu = 1.0
     cpu_t0   = time.clock()
     u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end,show_animation=False,print_progress=False)
     cpu_time = time.clock() - cpu_t0
