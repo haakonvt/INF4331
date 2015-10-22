@@ -4,13 +4,13 @@ import numpy as np
 import sys,time
 
 
-def SourceTermF_ARRAY(Nx,Ny):
+def SourceTermF_ARRAY(n,m):
     # Initiate the array with constant f = 1
-    f = np.ones((Nx,Ny))
+    f = np.ones((n,m))
     return f
 
 
-def SolverWeave(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000):
+def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000):
     """
     Solver for heat equation. Solved in C using weave.
     Dirichlet boundary conditions: ( u_edge = 0 )
@@ -18,8 +18,8 @@ def SolverWeave(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000):
     t = t0
 
     # Initiate the solution array for u and u_new (un)
-    u  = np.zeros((Nx,Ny))
-    un = np.zeros((Nx,Ny))
+    u  = np.zeros((n,m))
+    un = np.zeros((n,m))
 
     code = """
     int t,i,j,max_steps;
@@ -45,13 +45,13 @@ def SolverWeave(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000):
 
 
 if __name__ == '__main__':
-    Nx = 50  # Mesh-length in x-direction
-    Ny = 100 # Mesh-length in y-direction
+    n = 50  # Mesh-length in x-direction
+    m = 100 # Mesh-length in y-direction
 
-    f = SourceTermF_ARRAY(Nx,Ny)
+    f = SourceTermF_ARRAY(n,m)
     dt = 0.1; t0 = 0; t_end = 200.0; nu = 1.0
     cpu_t0   = time.clock()
-    u = SolverWeave(f,nu,dt,Nx,Ny,t0,t_end)
+    u = SolverWeave(f,nu,dt,n,m,t0,t_end)
     cpu_time = time.clock() - cpu_t0
 
     print "\nMax. temp.:", u.max(), "time taken:", cpu_time

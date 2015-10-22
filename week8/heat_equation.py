@@ -2,31 +2,31 @@ import matplotlib.pyplot as plt
 import sys,time,copy
 
 
-def SourceTermF_LIST(Nx,Ny):
+def SourceTermF_LIST(n,m):
     # Initiate the nested list with only constant = 1
     f = []
-    for i in range(Nx):
+    for i in range(n):
         f.append([])
-    for i in range(Nx):
-        for j in range(Ny):
+    for i in range(n):
+        for j in range(m):
             f[i].append(1)
     return f
 
 
-def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
+def SolverPurePython(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000,
                         show_animation=False, print_progress=False):
     """
     Solver for heat equation. ONLY pure python objects used.
     Dirichlet boundary conditions: ( u_edge = 0 )
     """
     u  = []; t = t0
-    Nx = int(Nx); Ny = int(Ny)
+    n = int(n); m = int(m)
 
     # Initiate the nested list with only zeros
-    for i in range(Nx):
+    for i in range(n):
         u.append([])
-    for i in range(Nx):
-        for j in range(Ny):
+    for i in range(n):
+        for j in range(m):
             u[i].append(float(0))
 
     u_new = [row[:] for row in u] # Make a copy for the solution at the next timestep
@@ -40,8 +40,8 @@ def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
 
     # Loop over all timesteps
     while t < t_end:
-        for i in range(1,Nx-1): # Not including first and last element
-            for j in range(1,Ny-1):
+        for i in range(1,n-1): # Not including first and last element
+            for j in range(1,m-1):
                 u_new[i][j] = u[i][j] \
                             + dt*(nu*u[i-1][j] + nu*u[i][j-1] - 4*nu*u[i][j] \
                             +     nu*u[i][j+1] + nu*u[i+1][j] + f[i][j])
@@ -66,13 +66,13 @@ def SolverPurePython(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
 
 
 if __name__ == '__main__':
-    Nx = 50  # Mesh-length in x-direction
-    Ny = 100 # Mesh-length in y-direction
+    n = 50  # Mesh-length in x-direction
+    m = 100 # Mesh-length in y-direction
 
-    f = SourceTermF_LIST(Nx,Ny)
+    f = SourceTermF_LIST(n,m)
     dt = 0.1; t0 = 0; t_end = 100; nu = 1.0
     cpu_t0   = time.clock()
-    u = SolverPurePython(f,nu,dt,Nx,Ny,t0,t_end,show_animation=False,print_progress=False)
+    u = SolverPurePython(f,nu,dt,n,m,t0,t_end,show_animation=False,print_progress=False)
     cpu_time = time.clock() - cpu_t0
     print "\nMax. temp.:", max(max(u)), "time taken:", cpu_time
 

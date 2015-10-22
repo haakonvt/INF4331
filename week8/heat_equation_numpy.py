@@ -3,23 +3,23 @@ import numpy as np
 import sys,time
 
 
-def SourceTermF_ARRAY(Nx,Ny):
+def SourceTermF_ARRAY(n,m):
     # Initiate the array with constant f = 1
-    f = np.ones((Nx,Ny))
+    f = np.ones((n,m))
     return f
 
 
-def SolverNumpy(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
+def SolverNumpy(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000,
                     show_animation=False, print_progress=False):
     """
     Solver for heat equation. Solved with numpy arrays (slices for speed)
     Dirichlet boundary conditions: ( u_edge = 0 )
     """
     t = t0
-    #Nx = int(Nx); Ny = int(Ny)
+    #n = int(n); m = int(m)
 
     # Initiate the solution array for u_n
-    u     = np.zeros((Nx,Ny))
+    u     = np.zeros((n,m))
 
     if show_animation:
         plt.ion()
@@ -52,13 +52,13 @@ def SolverNumpy(f, nu=1, dt=0.1, Nx=50, Ny=100, t0 = 0, t_end=1000,
 
 
 if __name__ == '__main__':
-    Nx = 50  # Mesh-length in x-direction
-    Ny = 100 # Mesh-length in y-direction
+    n = 50  # Mesh-length in x-direction
+    m = 100 # Mesh-length in y-direction
 
-    f = SourceTermF_ARRAY(Nx,Ny)
+    f = SourceTermF_ARRAY(n,m)
     dt = 0.1; t0 = 0; t_end = 200; nu = 1.0
     cpu_t0   = time.clock()
-    u = SolverNumpy(f,nu,dt,Nx,Ny,t0,t_end,show_animation=False)
+    u = SolverNumpy(f,nu,dt,n,m,t0,t_end,show_animation=False)
     cpu_time = time.clock() - cpu_t0
 
     print "\nMax. temp.:", u.max(), "time taken:", cpu_time
