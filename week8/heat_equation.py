@@ -70,9 +70,9 @@ if __name__ == '__main__':
     m = 100 # Mesh-length in y-direction
 
     f = SourceTermF_LIST(n,m)
-    dt = 0.1; t0 = 0; t_end = 100; nu = 1.0
+    dt = 0.1; t0 = 0; t_end = 200; nu = 1.0
     cpu_t0   = time.clock()
-    u = SolverPurePython(f,nu,dt,n,m,t0,t_end,show_animation=False,print_progress=False)
+    u = SolverPurePython(f,nu,dt,n,m,t0,t_end,show_animation=False,print_progress=True)
     cpu_time = time.clock() - cpu_t0
     print "\nMax. temp.:", max(max(u)), "time taken:", cpu_time
 

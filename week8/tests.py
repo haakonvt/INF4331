@@ -64,9 +64,9 @@ def manufactured_solution(n=50,m=100,t_end_arg=1000,ignore_assert=False):
 
     # Test the speed of the solvers
     t_end = t_end_arg; cpu_t = [time.clock()]
-    #u_p = SolverPurePython(f_list(n,m), n=n, m=m, t_end=t_end); cpu_t.append(time.clock())
+    u_p = SolverPurePython(f_list(n,m), n=n, m=m, t_end=t_end); cpu_t.append(time.clock())
     u_n = SolverNumpy(f_array(n,m), n=n, m=m, t_end=t_end);     cpu_t.append(time.clock())
-    u_p = u_n # CHEATING WHILE TESTING PROGRAM!!!!!!!! Cant wait until the end of the universe
+    #u_p = u_n # CHEATING WHILE TESTING PROGRAM!!!!!!!! Cant wait until the end of the universe
     u_w = SolverWeave(f_array(n,m), n=n, m=m, t_end=t_end);     cpu_t.append(time.clock())
 
     cpu_t   = diff(array(cpu_t))
@@ -83,7 +83,7 @@ def manufactured_solution(n=50,m=100,t_end_arg=1000,ignore_assert=False):
     # Have a look at the abs. error across the mesh:
     plt.imshow(u_n-u_a_a, cmap='gray', interpolation='None'); plt.colorbar(); plt.show()
 
-    tol = 0.15
+    tol = 0.0012
     #print "     Abs. err.: Python: %.2e" %err_p
     #print "     Abs. err.: Numpy:  %.2e" %err_n
     print "     Abs. err.: Weave:  %.2e" %err_w
@@ -99,7 +99,7 @@ def test_manufactured_solution():
 
 
 if __name__ == '__main__':
-    n_list = [10,20,40,80]; m_list = [20,40,80,160]
+    n_list = [10,20]; m_list = [20,40]
     t_end  = 1000
     for n,m in zip(n_list,m_list):
         print "\nTesting n=%d, m=%d with t1=%d" %(n,m,t_end)
