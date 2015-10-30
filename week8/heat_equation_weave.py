@@ -3,28 +3,30 @@ from scipy import weave
 import numpy as np
 import sys,time
 
-def SourceTermF_ARRAY(n,m):
+def SourceTermF_ARRAY(n,m,constant=1):
     # Initiate the array with constant f = 1
-    f = np.ones((n,m))
+    f = constant*np.ones((n,m))
     return f
 
 
-def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000,
+def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
                     show_animation=False, print_progress=False):
     """
     Solver for heat equation. Solved in C using weave.
     Dirichlet boundary conditions: ( u_edge = 0 )
     """
-    t = t0; no_anim_print_prog = False
+    t = t0; t_end = t_end + 1E-8
+    no_anim_print_prog = False
 
     # Initiate the solution array for u and u_new (un)
-    u  = np.zeros((n,m))
-    un = np.zeros((n,m))
+    u  = np.zeros((n,m)) if u0 == None else u0
+    un = np.zeros((n,m)) if u0 == None else u0.copy()
 
     if show_animation: # Keep time loop in python code for easy plotting
         plt.ion()
-        im = plt.imshow(u, cmap='gray') # Initiate plotting / animation
+        im = plt.imshow(u.transpose(), cmap='gray') # Initiate plotting / animation
         plt.colorbar(im)                # Add a colorbar
+        plt.title('2D Temp. dist. t=%f' %t)
         plot_every_n_frame = 10         # Plot every n frames
         plot_counter = 0                # Make sure to plot first frame
         code = """
@@ -82,17 +84,17 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000,
     if show_animation or no_anim_print_prog:
         while t < t_end: # Loop over all timesteps
             weave.inline(code, ['dt', 'u', 'un','f', 'nu']) # One update of solution
+            t += dt # Jump to next timestep
 
             if show_animation:
-                if plot_counter == plot_every_n_frame:
-                    im.set_array(u)         # Set new values for u in plot
+                if plot_counter == plot_every_n_frame or t > t_end: #Also plot the very last solution:
+                    im.set_array(u.transpose())         # Set new values for u in plot
+                    plt.title('2D Temp. dist. t=%f' %(t-dt)) # Update title with current time
                     im.autoscale()          # Fix colorbar and color map to map from min-max
                     plt.draw()              # Update the figure with latest solution
                     plot_every_n_frame += 1 # Plot less frames the further in time we go (ok since solution changes more slowly)
                     plot_counter = 0        # Reset the counter
                 plot_counter += 1
-
-            t += dt # Jump to next timestep
 
             if print_progress:
                 percent = t/float(t_end)*100.0 if t<t_end else 100

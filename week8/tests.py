@@ -99,7 +99,7 @@ def test_manufactured_solution():
 
 
 if __name__ == '__main__':
-    n_list = [10,20]; m_list = [20,40]
+    n_list = [10,20,50]; m_list = [20,40,100]
     t_end  = 1000
     for n,m in zip(n_list,m_list):
         print "\nTesting n=%d, m=%d with t1=%d" %(n,m,t_end)
