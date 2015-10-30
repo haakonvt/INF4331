@@ -3,9 +3,11 @@ from heat_equation_numpy import SolverNumpy,      SourceTermF_ARRAY
 from heat_equation_weave import SolverWeave
 import matplotlib.pyplot as plt
 import numpy             as np
-import argparse, sys
+import argparse, sys, timeit
 
 parser = argparse.ArgumentParser()
+parser.add_argument("-time", nargs=2, help="Turn on timeit-module. "+ \
+                                               "Run ARG1 tests with ARG2 iterations", type=int)
 parser.add_argument("-n",  default=50,   help="The mesh points in X-direction",       type=int)
 parser.add_argument("-m",  default=100,  help="The mesh points in Y-direction",       type=int)
 parser.add_argument("-t0", default=0,    help="The start time of computations [sec]", type=int)
@@ -20,7 +22,6 @@ parser.add_argument("-i", "-input",  help="Filename (read from disk) of initial 
 parser.add_argument("-s", "-save",    help='Save plot of last solution: "last_u.png"', action="store_true")
 parser.add_argument("-v", "-verbose", help="Increase output verbosity",                action="store_true")
 parser.add_argument("-a", "-anim",    help="Animate solution while computation runs",  action="store_true")
-parser.add_argument("-time", help="Turn on timeit-module and report used CPU-time",    action="store_true")
 
 group  = parser.add_mutually_exclusive_group() # Pick only one solver-method
 group.add_argument("-python", help="Solve problem with pure python objects", action="store_true")
@@ -36,29 +37,36 @@ nu = args.nu
 f_constant       = args.f
 verbose          = args.v
 save_last_fig    = args.s
-use_timeit       = args.time
 show_animation   = args.a
+timeit_repeats   = args.time[0]
+timeit_iter      = args.time[1]
 
 # File handling switches
-output_last_u_to_file = False if not args.o else True
-change_initial_u      = False if not args.i else True
-print_progress        = True  if verbose    else False
+use_timeit            = False if not args.time else True
+output_last_u_to_file = False if not args.o    else True
+change_initial_u      = False if not args.i    else True
+print_progress        = True  if verbose       else False
 
 # Set method for solver
 method = SolverPurePython if args.python else SolverNumpy if args.numpy else SolverWeave if args.weave else None
+scheme_name = 'Python'    if args.python else 'Numpy'     if args.numpy else 'Weave'     if args.weave else None
 if not method:
     if verbose:
         print "\nNo method specified. Choosing 'weave' for speed!"
     method = SolverWeave
+    scheme_name = 'Weave'
 
 # Give the user options if dt is unstable/too large
-if dt >= 1.0/(4*nu): # dt <= dx*dy / (4*nu) (and we have dx=dy=1 for any mesh size, see report)
-    print "\nTimestep (dt) too large, solution might be unstable! Choose what to do:"
-    print "- Press enter to use maximum timestep and continue"
+# dt <= dx*dy / (4*nu) (and we have dx=dy=1 for any mesh size, see report)
+max_stable_dt = 1.0/(4*nu)
+if dt > max_stable_dt:
+    print "\nThe chosen dt (%.2e) is  too large, solution might be unstable!" %dt
+    print "Choose what to do:"
+    print "- Press enter to use the max. stable dt (%.2e) and continue" %max_stable_dt
     print "- Enter 'c' or 'cont' to continue anyway, or"
     user_choice = raw_input("- Enter 'exit' (or anything else than the above options) to quit\n")
     if not user_choice:
-        dt = 1.0/(4*nu)
+        dt = max_stable_dt
     elif user_choice in ['c','cont']:
         pass
     else:
@@ -84,6 +92,10 @@ if change_initial_u:
 else:
     initial_u = None
 
+# If timeit is used and method = PurePython, give the user a warning
+if method == SolverPurePython:
+    print "ikke vre 0"
+
 
 """
 Main
@@ -95,23 +107,45 @@ else: # All other methods use arrays
     f = SourceTermF_ARRAY(n,m,f_constant)
 
 # One call to rule them all
-u = method(f,nu,dt,n,m,t0,t1,initial_u,show_animation=show_animation,print_progress=verbose)
-
-if verbose: # Need to add some spacing for aesthetical purposes
-    print ""
-
-# Save last u
-if output_last_u_to_file:
+if use_timeit:
     if verbose:
-        print "\nSaving final temperature distribution u to file"
-    filename = args.o
-    np.savetxt(filename, u)
+        print "\nWhen running timeit, some user specified settings might"
+        print "be ignored for consistency and reproducability"
 
-if save_last_fig:
+    if method == SolverPurePython: # Sorry for long lines of code, but I get indent error otherwise...
+        setup_timeit = "from heat_equation import SolverPurePython, SourceTermF_LIST; method = SolverPurePython; f = SourceTermF_LIST(%d,%d,%f)" %(n,m,f_constant)
+    elif method == SolverNumpy:
+        setup_timeit = "from heat_equation_numpy import SolverNumpy, SourceTermF_ARRAY; method = SolverNumpy; f = SourceTermF_ARRAY(%d,%d,%f)" %(n,m,f_constant)
+    else:
+        setup_timeit = "from heat_equation_weave import SolverWeave, SourceTermF_ARRAY; method = SolverWeave; f = SourceTermF_ARRAY(%d,%d,%f)" %(n,m,f_constant)
+    solver_call = "u = method(f,%f,%f,%d,%d,%d,%d,None,False,False)" %(nu,dt,n,m,t0,t1)
+    timeit_results = timeit.Timer(solver_call, setup=setup_timeit).repeat(timeit_repeats, timeit_iter)
+    best_time = min(timeit_results)/float(timeit_iter) # All noise in data is "positive", so minimum time is most accurate
     if verbose:
-        print "\nSaving the final temperature plot of u to 'last_u.png'"
-    plt.ion()
-    im = plt.imshow(zip(*u), cmap='gray')  # Initiate plotting / animation
-    if not show_animation: # Do not add a second colorbar if already added!
-        plt.colorbar(im)
-    plt.savefig('last_u.png')
+        print "\nTest repeats: %d, each with %d iterations" %(timeit_repeats, timeit_iter)
+        print "Minimum CPU-time of scheme '%s': %f seconds" %(scheme_name, best_time)
+    else:
+        print "Min. CPU-time: %f sec. (%s)" %(best_time, scheme_name)
+
+else:
+    u = method(f,nu,dt,n,m,t0,t1,initial_u, \
+           show_animation=show_animation,print_progress=verbose)
+
+    if verbose: # Need to add some spacing for aesthetical purposes
+        print ""
+
+    # Save last u
+    if output_last_u_to_file:
+        if verbose:
+            print "\nSaving final temperature distribution u to file"
+        filename = args.o
+        np.savetxt(filename, u)
+
+    if save_last_fig:
+        if verbose:
+            print "\nSaving the final temperature plot of u to 'last_u.png'"
+        plt.ion()
+        im = plt.imshow(zip(*u), cmap='gray')  # Initiate plotting / animation
+        if not show_animation: # Do not add a second colorbar if already added!
+            plt.colorbar(im)
+        plt.savefig('last_u.png')
