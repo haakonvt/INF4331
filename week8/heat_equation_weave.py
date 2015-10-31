@@ -4,7 +4,10 @@ import numpy as np
 import sys,time
 
 def SourceTermF_ARRAY(n,m,constant=1):
-    # Initiate the array with constant f = 1
+    """
+    Initiate the array (source term f(x,y)) with constant:
+    f = 1 or f = constant if specified by user.
+    """
     f = constant*np.ones((n,m))
     return f
 
@@ -14,6 +17,8 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
     """
     Solver for heat equation. Solved in C using weave.
     Dirichlet boundary conditions: ( u_edge = 0 )
+    If possible, time loop will automatically be done in C
+    for additional speed.
     """
     t = t0; t_end = t_end + 1E-8
     no_anim_print_prog = False

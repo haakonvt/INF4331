@@ -3,7 +3,9 @@ import sys,time,copy
 
 
 def SourceTermF_LIST(n,m,constant=1.0):
-    # Initiate the nested list with only a constant
+    """
+    Initiate the nested list with a constant = 1 or as specified (if specified)
+    """
     f = []
     for i in range(n):
         f.append([])
@@ -18,6 +20,7 @@ def SolverPurePython(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
     """
     Solver for heat equation. ONLY pure python objects used.
     Dirichlet boundary conditions: ( u_edge = 0 )
+    Warning: Slow (not an understatement)
     """
     t = t0; t_end = t_end + 1E-8
     n = int(n); m = int(m)
@@ -30,10 +33,10 @@ def SolverPurePython(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
         for i in range(n):
             for j in range(m):
                 u[i].append(float(0))
-    else:
+    else: # Or use some other distribution if given
         u = u0
 
-    u_new = [row[:] for row in u] # Make a copy for the solution (to use at the next timestep)
+    u_new = [vec[:] for vec in u] # Make a copy for the solution (to use at the next timestep)
 
     if show_animation:
         plt.ion()
@@ -52,7 +55,7 @@ def SolverPurePython(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
                             +     nu*u[i][j+1] + nu*u[i+1][j] + f[i][j])
 
         t += dt                         # Jump to next timestep
-        u = [row[:] for row in u_new]   # Update u for next iteration (much faster than "deep copy")
+        u = [vec[:] for vec in u_new]   # Update u for next iteration (much faster than "deep copy")
 
         if show_animation:
             if plot_counter == plot_every_n_frame or t >= t_end: #Also plot the very last solution:

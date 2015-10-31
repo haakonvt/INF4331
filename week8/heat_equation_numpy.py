@@ -4,7 +4,10 @@ import sys,time
 
 
 def SourceTermF_ARRAY(n,m,constant=1):
-    # Initiate the array with constant f = 1
+    """
+    Initiate the array (source term f(x,y)) with constant:
+    f = 1 or f = constant if specified by user.
+    """
     f = constant*np.ones((n,m))
     return f
 
@@ -15,6 +18,7 @@ def SolverNumpy(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
     Solver for heat equation. Solved with numpy arrays (slices for speed)
     Dirichlet boundary conditions: ( u_edge = 0 )
     """
+    
     t = t0; t_end = t_end + 1E-8
     #n = int(n); m = int(m)
 
