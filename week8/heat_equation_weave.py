@@ -89,7 +89,8 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
 
     if show_animation or no_anim_print_prog:
         while t < t_end: # Loop over all timesteps
-            weave.inline(code, ['dt', 'u', 'un','f', 'nu']) # One update of solution
+            weave.inline(code, ['dt', 'u', 'un','f', 'nu'], \
+                        extra_compile_args=["-w"]) # One update of solution (-w negates output)
             t += dt # Jump to next timestep
 
             if show_animation:
