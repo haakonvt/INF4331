@@ -111,7 +111,7 @@ def heat_eq_ui():
         initial_u = None
 
     # If timeit is used and method = PurePython, give the user a warning
-    if method == SolverPurePython:
+    if method == SolverPurePython and use_timeit:
         timeit_total_iter = timeit_repeats*timeit_iter # Total number of iterations (i.e. runs of solver)
         if timeit_total_iter >= 2 and t1-t0 >= 200:
             estimate_time_used = int((t1-t0)/1000. * 55)
@@ -162,13 +162,15 @@ def heat_eq_ui():
             if verbose:
                 print "\nSaving final temperature distribution u to file"
             filename = args.o
-            np.savetxt(filename, u)
+            np.savetxt(filename, u) # Works with both nested list and array
 
         if save_last_fig:
             if verbose:
                 print "\nSaving the final temperature plot of u to 'last_u.png'"
             plt.ion()
             im = plt.imshow(zip(*u), cmap='gray')  # Initiate plotting / animation
+            plt.title('u(x,y,t=%d)' %(t1)) # Update title time
+            plt.xlabel('X'); plt.ylabel('Y')
             if not show_animation: # Do not add a second colorbar if already added!
                 plt.colorbar(im)
             plt.savefig('last_u.png')

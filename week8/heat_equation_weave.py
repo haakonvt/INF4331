@@ -30,17 +30,18 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
     if show_animation: # Keep time loop in python code for easy plotting
         plt.ion()
         im = plt.imshow(u.transpose(), cmap='gray') # Initiate plotting / animation
-        plt.colorbar(im)                # Add a colorbar
-        plt.title('2D Temp. dist. t=%f' %t)
-        plot_every_n_frame = 10         # Plot every n frames
-        plot_counter = 0                # Make sure to plot first frame
+        plt.colorbar(im)                 # Add a colorbar
+        plt.title('u(x,y,t=%.1f)' %(t))  # Update title time
+        plt.xlabel('X'); plt.ylabel('Y') # Add axis labels
+        plot_every_n_frame = 10          # Plot every n frames
+        plot_counter = 0                 # Make sure to plot first frame
         code = """
         int i,j;
         for (i=1; i<Nu[0]-1; i++) {
            for (j=1; j<Nu[1]-1; j++) {
                UN2(i,j) = U2(i,j) \
-                        + dt*(nu*U2(i-1,j) + nu*U2(i,j-1) - 4*nu*U2(i,j) \
-                        + nu*U2(i,j+1) + nu*U2(i+1,j) + F2(i,j));
+                        + dt*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
+                        + U2(i,j+1) + U2(i+1,j)) + nu*F2(i,j);
            }
         }
         for (i=1; i<Nu[0]-1; i++) {
@@ -56,8 +57,8 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
         for (i=1; i<Nu[0]-1; i++) {
            for (j=1; j<Nu[1]-1; j++) {
                UN2(i,j) = U2(i,j) \
-                        + dt*(nu*U2(i-1,j) + nu*U2(i,j-1) - 4*nu*U2(i,j) \
-                        + nu*U2(i,j+1) + nu*U2(i+1,j) + F2(i,j));
+                        + dt*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
+                        + U2(i,j+1) + U2(i+1,j)) + nu*F2(i,j);
            }
         }
         for (i=1; i<Nu[0]-1; i++) {
@@ -74,8 +75,8 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
             for (i=1; i<Nu[0]-1; i++) {
                for (j=1; j<Nu[1]-1; j++) {
                    UN2(i,j) = U2(i,j) \
-                            + dt*(nu*U2(i-1,j) + nu*U2(i,j-1) - 4*nu*U2(i,j) \
-                            + nu*U2(i,j+1) + nu*U2(i+1,j) + F2(i,j));
+                            + dt*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
+                            + U2(i,j+1) + U2(i+1,j)) + nu*F2(i,j);
                }
             }
             for (i=1; i<Nu[0]-1; i++) {
@@ -94,7 +95,7 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
             if show_animation:
                 if plot_counter == plot_every_n_frame or t > t_end: #Also plot the very last solution:
                     im.set_array(u.transpose())         # Set new values for u in plot
-                    plt.title('2D Temp. dist. t=%f' %(t-dt)) # Update title with current time
+                    plt.title('u(x,y,t=%.1f)' %(t-dt))  # Update title time
                     im.autoscale()          # Fix colorbar and color map to map from min-max
                     plt.draw()              # Update the figure with latest solution
                     plot_every_n_frame += 1 # Plot less frames the further in time we go (ok since solution changes more slowly)
@@ -115,9 +116,9 @@ if __name__ == '__main__':
     m = 100 # Mesh-length in y-direction
 
     f = SourceTermF_ARRAY(n,m)
-    dt = 0.1; t0 = 0; t_end = 200.0; nu = 1.0
+    dt = 0.1; t0 = 0; t_end = 1000.0; nu = 1.0
     cpu_t0   = time.clock()
-    u = SolverWeave(f,nu,dt,n,m,t0,t_end,show_animation=False,print_progress=False)
+    u = SolverWeave(f,nu,dt,n,m,t0,t_end,show_animation=True,print_progress=False)
     cpu_time = time.clock() - cpu_t0
 
     print "\nMax. temp.:", u.max(), "time taken:", cpu_time
