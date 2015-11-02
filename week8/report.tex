@@ -15,7 +15,7 @@
 
 \author{Håkon V. Treider\\\texttt{https://github.com/UiO-INF3331/INF3331-HaakonVikor/}}
 
-\date{\today}
+\date{November 1, 2015}
 
 \begin{document}
 \maketitle
@@ -122,10 +122,86 @@ weave.inline(code, ['t_end','dt', 'u', 'un','f', 'nu'])
 \end{minted}
 
 \subsection*{Results, C via Weave}
-As before, we get the exact same values computed (for all n-times-m-elements) and therefore I'd still like to refer the reader to figure \ref{FIG:purepython_res}. The advantage is of course even better performance in terms of speed, as we are going to examine in the next sections.
+As before, we get the exact same values computed (for all n-times-m-elements) and therefore I'd still like to refer the reader to figure \ref{FIG:purepython_res}. The advantage is of course even better performance in terms of speed, as we are going to examine in the next sections.we are going to examine in the next sections.
 
+\section*{5.3 Testing the solvers}
+\subsection*{Accuracy}
+From the animation and plots, we can see that the solvers behave reasonably (in a physical sense). While keeping the edges cooled and constant, the temperature rises gradually with time until a steady state is reached. But do we know that we actually have a mathematically correct solver? To check this, we use the analytical solution when we let $t\rightarrow \infty$ and have a manufactured source term $f$:
 
+\begin{align}
+f(x,y) &= \nu\left(\left(\frac{2\pi}{(m-1)}\right)^2 + \left(\frac{2\pi}{(n-1)}\right)^2\right)\sin\left(\frac{2\pi x}{(n-1)}\right)\sin\left(\frac{2\pi y}{(m-1)}\right)
+\end{align}
+
+\begin{align}
+u_{exact}(x,y) &= \sin\left(\frac{2\pi x}{n-1}\right)\sin\left(\frac{2\pi y}{m-1}\right)
+\end{align}
+
+This is implemented in the file \texttt{tests.py} and can be run both directly or with py.test. If run directly, it will test what happens with the error in the computation, when the mesh grid is increased.
+\newline
+
+Since all of the solvers give the exact same level of accuracy (or discrepancy between the analytic and numericaly computed solution), I'll list four runs where I have started with a 10-by-20 grid and then doubled the size three times. This can be seen in table \ref{TAB:test}. Due to the pure python-version being way too slow, it is not used to generate this data.
+
+What we can see from the tabular data is that the error in the computation seems to decrease linearly with increasing mesh points. Since we quadruple the total number of points each time, the error should reduce by a factor 4. This is also the case. 
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{n} & \textbf{m} & \textbf{Max error} & \textbf{Numpy {[}sec{]}} & \textbf{Weave {[}sec{]}} \\ \hline
+10 & 20 & 3.5E-2 & 1.150 & 0.041 \\ \hline
+20 & 40 & 7.8E-3 & 1.426 & 0.190 \\ \hline
+40 & 80 & 1.8E-3 & 2.303 & 0.814 \\ \hline
+80 & 160 & 4.5E-4 & 6.336 & 3.478 \\ \hline
+\end{tabular}
+\caption{Error and speed of solvers. dt = 0.1, t1 = 2000\label{TAB:test}}
+\end{table}
+
+\subsection*{Speed}
+Let's take a look at the speed-up we get from using NumPy and C. I have started with a grid size of 5-by-10, and then doubled the points three times, but this time also including the pure python-version. The results are put into table \ref{TAB:test}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+\textbf{n} & \textbf{m} & \textbf{Python only} & \textbf{Numpy} & \textbf{Speed-up} & \textbf{Weave} & \textbf{Speed-up} \\ \hline
+5 & 10 & 0.307 sec & 0.513 sec & 0.6 X & 0.006 sec & 55 X \\ \hline
+10 & 20 & 1.775 sec & 0.567 sec & 3,2 X & 0.002 sec & 93 X \\ \hline
+20 & 40 & 8.400 sec & 0.656 sec & 13 X & 0.090 sec & 93 X \\ \hline
+40 & 80 & 36.54 sec & 1.123 sec & 33 X & 0.402 & 91 X \\ \hline
+\end{tabular}
+\caption{Run time comparison with pure-python-version. dt = 0.1, t1 = 1000\label{FIG:test2}}
+\end{table}
+
+From this, we immediately see that the larger the grid size, the better speed-up we can gain from NumPy. Meanwhile C (through Weave) gives an almost constant 90 X-improvement, which is just impressive!
+
+\section*{5.4 User interface}
+When using the file \texttt{heat\_equation\_ui.py}, the user can specify almost any setting from the command line. If any (or few or none) arguments are given, the default values are used, which are the "basic settings" we declared above. 
+In addition to the grid size, time step, and interval settings, the user can also use "-v" or "-verbose" to get more information throughout the computation. Also, for time measurements "-time A B" can be given and this will make the program run the timeit-module A tests with each, B iterations. The total number of runs will be A times B.
+\newline
+
+The perhaps most important setting, is the choice of solver. Since only one might be used at the time, the user is only allowed to specify either "-python", "-numpy" or "-weave". If no argument is given, weave is used for its consistent speed. To save the last solution use "-s" or "-save". To output the last solution (as an array of numbers) use "-o FILENAME". If you wish to use this as a starting point for a new calculations, specify "-i FILENAME". A test will make sure that the dimensions agree. The user can also run:\\
+\texttt{>>> python heat\_equation\_ui.py -h}\\
+to get a full documentation of possibilities.
+
+\section*{5.6}
 
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
