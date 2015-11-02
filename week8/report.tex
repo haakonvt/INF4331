@@ -183,7 +183,30 @@ The perhaps most important setting, is the choice of solver. Since only one migh
 \texttt{>>> python heat\_equation\_ui.py -h}\\
 to get a full documentation of possibilities.
 
-\section*{5.6}
+\section*{5.6 More interfaces}
+\subsection*{C via Instant}
+In the file \texttt{heat\_equation\_instant.py} I have used Instant to interface C-code in Python. The tricky part here is that you have to list both the dimensions and the arrays string-name to the inline-function. I add the variables dt, $\nu$ and t1 directly into the C-code via the $\%f$-python syntax.
+
+\begin{minted}[bgcolor=LightGray, linenos, fontsize=\footnotesize]{python}
+c_code      = """
+  void heateq(int ux, int uy, double* u, int unx, int uny, \
+	      double* un, int fx, int fy, double* f){
+  double dt = %f;
+  double nu = %f;
+  double t_end = %f;
+  int t,i,j;
+  for (t=0; t*dt<t_end+dt; t++){
+    (...)
+  }
+}"""%(dt,nu,t_end) # Add these values into C-code "as text"
+
+heateq_func = inline_with_numpy(c_code, arrays = [['ux',  'uy',  'u' ],
+                                                  ['unx', 'uny', 'un'],
+                                                  ['fx',  'fy',  'f']])
+heateq_func(u,un,f) # Run through all time steps in C
+\end{minted}
+
+When run directly, we get the same solution for u as we did earlier. Since we already have tested this solution to be valid, the Instant-interface is also validated. 
 
 \end{document}
 
