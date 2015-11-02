@@ -38,7 +38,7 @@ def SolverNumpy(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
     while t < t_end:
         u[1:-1,1:-1] = u[1:-1,1:-1] \
                      + dt*nu*(u[:-2,1:-1] + u[1:-1,:-2] - 4*u[1:-1,1:-1] \
-                     +        u[1:-1,2:]  + u[2:,1:-1]) +nu*f[1:-1,1:-1]
+                     +        u[1:-1,2:]  + u[2:,1:-1]) +nu*f[1:-1,1:-1]*dt
         t += dt # Jump to next timestep
 
         if show_animation:

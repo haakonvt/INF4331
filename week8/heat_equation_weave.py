@@ -40,8 +40,8 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
         for (i=1; i<Nu[0]-1; i++) {
            for (j=1; j<Nu[1]-1; j++) {
                UN2(i,j) = U2(i,j) \
-                        + dt*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
-                        + U2(i,j+1) + U2(i+1,j)) + nu*F2(i,j);
+                        + dt*nu*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
+                        + U2(i,j+1) + U2(i+1,j)) + dt*nu*F2(i,j);
            }
         }
         for (i=1; i<Nu[0]-1; i++) {
@@ -57,8 +57,8 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
         for (i=1; i<Nu[0]-1; i++) {
            for (j=1; j<Nu[1]-1; j++) {
                UN2(i,j) = U2(i,j) \
-                        + dt*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
-                        + U2(i,j+1) + U2(i+1,j)) + nu*F2(i,j);
+                        + dt*nu*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
+                        + U2(i,j+1) + U2(i+1,j)) + dt*nu*F2(i,j);
            }
         }
         for (i=1; i<Nu[0]-1; i++) {
@@ -75,8 +75,8 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
             for (i=1; i<Nu[0]-1; i++) {
                for (j=1; j<Nu[1]-1; j++) {
                    UN2(i,j) = U2(i,j) \
-                            + dt*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
-                            + U2(i,j+1) + U2(i+1,j)) + nu*F2(i,j);
+                            + dt*nu*(U2(i-1,j) + U2(i,j-1) - 4*U2(i,j) \
+                            + U2(i,j+1) + U2(i+1,j)) + dt*nu*F2(i,j);
                }
             }
             for (i=1; i<Nu[0]-1; i++) {

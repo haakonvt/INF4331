@@ -53,7 +53,7 @@ def SolverPurePython(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
             for j in range(1,m-1):
                 u_new[i][j] = u[i][j] \
                             + dt*nu*(u[i-1][j] + u[i][j-1] -  4*u[i][j] \
-                            +        u[i][j+1] + u[i+1][j]) +nu*f[i][j]
+                            +        u[i][j+1] + u[i+1][j]) +nu*f[i][j]*dt
 
         t += dt                         # Jump to next timestep
         u = [vec[:] for vec in u_new]   # Update u for next iteration (much faster than "deep copy")
