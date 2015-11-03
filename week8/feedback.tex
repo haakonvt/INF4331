@@ -1,0 +1,113 @@
+\documentclass[a4paper]{article}
+
+% Import some useful packages
+\usepackage[margin=0.5in]{geometry} % narrow margins
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\definecolor{LightGray}{gray}{0.95}
+
+\title{Peer-review of assignment 5 for \textit{INF3331-ReviewedRepo}}
+\author{Yrjan Skrimstad, Git-repo INF3331-Yrjan, {yrjansk@ulrik.uio.no} \\
+        Arild Lillegård, Git-repo INF3331-Arild, {arildlil@ulrik.uio.no} \\
+        Daniel Folgerø, Git-repo INF3331-Daniel, {danielfolgero@gmail.com}}
+\date{Deadline: Tuesday, 10. November 2015, 23:59:59.}
+
+\begin{document}
+\maketitle
+
+\section{Introduction and review guidelines}
+
+\subsection{Assignment review}\label{sec:general_review}
+
+The review should provide detailed feedback on the solution to the student. The main goal is to \emph{give constructive feedback and advice} on how to improve the solution. For each (coding) exercise, one should review the following points:
+
+\begin{itemize}
+  \item Is the code \textbf{working as expected}? For non-internal functions (in particular for scripts that are run from the command-line), does the program handle invalid inputs sensibly?
+  \item Is the code written in \textbf{Pythonic way} \footnote{https://www.python.org/dev/peps/pep-0020/}? Is the code easy to read? Are the variable/class/function names sensible? Do you find overuse of classes or not sufficient use of functions or classes? Are there parts of the program that are hard to understand? 
+  \item Is the code \textbf{well documented}? Are there docstrings?
+  \item Can you find \textbf{unnecessarily complicated parts} of the program? If so, suggest an improved implementation.
+  \item List the programming parts that are not answered.
+\end{itemize}
+You should use (shortened) code snippets where appropriate to show how to improve the solution. 
+
+
+\subsection{Useful Latex snippets}
+Here are some sample usage of Latex.
+
+\noindent
+Equation:
+\begin{align}
+2 \pi > 6
+\end{align}
+Sample code:
+
+\begin{minted}[bgcolor=LightGray, linenos, fontsize=\footnotesize]{python}
+import sys
+print "This is a sample code"
+sys.exit(0)
+\end{minted}
+
+\section{Review}\label{sec:review}
+
+%Specify the system (Python version, operating system, ...) that was used for the review.
+Tested on Debian Linux, Python 2.7.10
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 5.1:  Python implementation of the heat equation}
+The code seems to work nicely.\\
+Initiating lists with a value could potentially be done nicer with a list comprehension like this (this is for 0):
+
+\begin{minted}[bgcolor=LightGray, fontsize=\footnotesize]{python}
+u = [([0] * n) for y in xrange(m)]
+\end{minted}
+\\
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 5.2: NumPy and C implementations} \label{sec:assignment5.2}
+\textbf{Numpy version:}
+Seems to perform correctly and efficiently with good use of vectorisation. The documentation could have included information about return values.
+\\
+\noindent\textbf{Weave version:}
+You seem to be assigning more or less the same code string to the same code-variable in three places. This could be done better in a single declaration. The code is quite efficient, though it might be more efficient if you find a way to skip copying the array on every time iteration. Perhaps with a pointer swap?
+\\
+\noindent\textbf{Instant version:}
+This is almost identical to the weave-version, but without the plot. There's not much to be said.
+\\
+\noindent\textbf{In general:}
+You could probably have moved the plotting function out of the solver-functions. Currently you have basically the same plotting code several places, instead of having it one callable place. This would be easier to read and easier to maintain.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 5.3: Testing}
+Testing seems to work correctly and is implemented with py.test. However this could be done even nicer if you named the test file `test\_something.py`. That will let py.test automatically find the file so you don't have to write the filename when calling py.test.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 5.4:  Develop a user interface}
+On this system the plot disappears the moment it appears. This could probably be solved with a raw\_input() call like in the other files.
+Other than that it seems the UI works as intended.\\
+\indent However the file is somewhat hard to read. Especially with some lines that are quite a bit too long. You should be able to split up long lines in a string by using something like this.
+
+\begin{minted}[bgcolor=LightGray, fontsize=\footnotesize]{python}
+really_long_line = "this line is really really really really really really" \
+                   " long"
+\end{minted}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 5.5: Latex report}
+This report is very well done. It contains a lot of information. I really liked the analysis of the speed where you showed that NumPy's speed-up factor increased as the grid size increased!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 5.6: More C-interfaces}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 5.7: Github activity plot}
+
+\bibliographystyle{plain}
+\bibliography{literature}
+
+\end{document}
