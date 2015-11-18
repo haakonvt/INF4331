@@ -63,7 +63,7 @@ if __name__ == '__main__':
     m = 100 # Mesh-length in y-direction
 
     f = SourceTermF_ARRAY(n,m)
-    dt = 0.1; t0 = 0; t_end = 1000; nu = 1.0; show_animation = True
+    dt = 0.1; t0 = 0; t_end = 10000; nu = 1.0; show_animation = False
     cpu_t0   = time.clock()
     u = SolverNumpy(f,nu,dt,n,m,t0,t_end,show_animation=show_animation)
     cpu_time = time.clock() - cpu_t0

@@ -156,6 +156,7 @@ def heat_eq_ui():
 
         if verbose: # Need to add some spacing for aesthetical purposes
             print ""
+	print u.max()
 
         # Save last u
         if output_last_u_to_file:

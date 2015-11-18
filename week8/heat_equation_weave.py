@@ -9,6 +9,10 @@ def SourceTermF_ARRAY(n,m,constant=1):
     f = 1 or f = constant if specified by user.
     """
     f = constant*np.ones((n,m))
+    #Y,X = np.meshgrid(np.arange(n),np.arange(m))
+    #f = np.sin(X+Y)
+    nx = int(n/2); mx = int(m/2)
+    f[nx-2:nx+2,mx-2:mx+2] = -100
     return f
 
 
@@ -26,6 +30,7 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
     # Initiate the solution array for u and u_new (un)
     u  = np.zeros((n,m)) if u0 == None else u0
     un = np.zeros((n,m)) if u0 == None else u0.copy()
+    u[:,0] = 100
 
     if show_animation: # Keep time loop in python code for easy plotting
         plt.ion()
@@ -113,11 +118,11 @@ def SolverWeave(f, nu=1, dt=0.1, n=50, m=100, t0 = 0, t_end=1000, u0=None,
 
 
 if __name__ == '__main__':
-    n = 50  # Mesh-length in x-direction
+    n = 100  # Mesh-length in x-direction
     m = 100 # Mesh-length in y-direction
 
     f = SourceTermF_ARRAY(n,m)
-    dt = 0.1; t0 = 0; t_end = 1000.0; nu = 1.0
+    dt = 0.1; t0 = 0; t_end = 10000.0; nu = 1.0
     cpu_t0   = time.clock()
     u = SolverWeave(f,nu,dt,n,m,t0,t_end,show_animation=True,print_progress=False)
     cpu_time = time.clock() - cpu_t0
