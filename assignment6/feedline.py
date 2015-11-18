@@ -22,9 +22,9 @@ def feedline(string_command):
         namespace['line_number'] += 1
     l_n = namespace['line_number']
     if eval_used:
-        return "Out[%d]:" %l_n + str(output) + "\n" + "In [%d]:" %l_n
+        return "out[%d]:" %l_n + str(output) + "\n" + "in [%d]:" %l_n
     else:
-        return str(output) + 'In [%d]:' %l_n
+        return str(output) + 'in [%d]:' %l_n
 
 
 if __name__ == '__main__':
