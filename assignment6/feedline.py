@@ -8,19 +8,25 @@ def feedline(string_command):
     if not isinstance(string_command, basestring):
         "The input argument must be a string! Exiting!"; sys.exit(1)
     output = None; eval_used = True
-    try:
-        output = eval(string_command,namespace)
-    except:
-        oldio, sys.stdout = sys.stdout, StringIO() # Swap stdout with StringIO Instance
-        exec(string_command, namespace)
-        output = sys.stdout.getvalue() # Get stdout buffer
-        sys.stdout = oldio # Reset stdout
-        eval_used = False
-
-    #print "###%s###" %(output[:-1]) # Remove newline character
     if string_command != '' or namespace['line_number'] == 0:
         namespace['line_number'] += 1
     l_n = namespace['line_number']
+
+    try:
+        output = eval(string_command,namespace)
+    except SyntaxError:
+        try:
+            oldio, sys.stdout = sys.stdout, StringIO() # Swap stdout with StringIO Instance
+            exec(string_command, namespace)
+            output = sys.stdout.getvalue() # Get stdout buffer
+            sys.stdout = oldio # Reset stdout
+            eval_used = False
+        except Exception as err:
+            sys.stdout = oldio # Reset stdout
+            return "Error: %s" %err + "\n" + "in [%d]:" %l_n
+    except Exception as err:
+        return "Error: %s" %err + "\n" + "in [%d]:" %l_n
+
     if eval_used:
         return "out[%d]:" %l_n + str(output) + "\n" + "in [%d]:" %l_n
     else:
