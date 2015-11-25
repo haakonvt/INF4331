@@ -2,7 +2,7 @@ namespace = vars().copy()
 namespace['line_number'] = 0
 namespace['cmd_history'] = []
 
-import sys, subprocess, inspect
+import sys, subprocess
 from StringIO import StringIO
 
 def feedline(string_command):
