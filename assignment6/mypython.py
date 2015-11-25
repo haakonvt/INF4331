@@ -1,6 +1,6 @@
 from feedline import feedline, namespace
 from getchar  import getchar
-import sys, time, re
+import sys, re
 
 def prompt():
     sys.stdout.write("Welcome to mypython!\nin [0]:")

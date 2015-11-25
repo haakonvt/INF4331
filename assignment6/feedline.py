@@ -74,7 +74,6 @@ def feedline(string_command):
         else:
             return str(output) + 'in [%d]:' %l_n
 
-
 if __name__ == '__main__':
     print feedline("print 'hello world'")
     print feedline("")
