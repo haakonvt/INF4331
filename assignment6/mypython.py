@@ -59,7 +59,7 @@ def prompt():
             up_counter -= 1 if up_counter > 0 else 0
 
 
-        if char == "\x04":
+        if char == "\x04": # Ctrl + D = quit
             char_to_line   = False
             char_to_screen = False
             if line == "":
@@ -69,6 +69,13 @@ def prompt():
                 sys.stdout.write("\nKeyboardInterupt\n")
                 sys.stdout.write(feedline(""))
                 line = ""
+
+        if char == "\x7f":
+                if line: # not empty
+                    sys.stdout.write("\b \b")
+                    line = line[:-1]
+                char_to_line   = False
+                char_to_screen = False
 
         if char_to_screen:
             sys.stdout.write(char) # ... and print that character to screen
