@@ -1,11 +1,15 @@
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request
 from feedline import feedline
 import re
 
+# Create flask instance
 app = Flask(__name__)
 
 @app.route('/')
 def my_form():
+    """
+    Returns (creates) html of flask webapp of main page: 127.0.0.1, port 5000
+    """
     html = """
     <html>
        <head>
@@ -29,6 +33,11 @@ def my_form():
 
 @app.route('/', methods=['POST'])
 def my_form_post():
+    """
+    Returns (creates) html of flask webapp when user has input some
+    string to be validated by feedline(). Also, displays earlier input
+    and output.
+    """
     all_output = feedline(request.form['text'],True)
     all_output = re.sub('\n','<br>',all_output) # Change \n to <br>
     html = """
@@ -56,4 +65,4 @@ def my_form_post():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

@@ -6,7 +6,30 @@ namespace['_all_output'] = 'in [0]'
 import sys, subprocess
 from StringIO import StringIO
 
+
 def feedline(string_command,return_all_history=False):
+    """
+    Evaluates a single string argument as python code.
+
+    Args:
+        string_command (str):      Python code to be evaluated
+        return_all_history (bool): Return all history if specified to True
+    Returns:
+        IPython-style string to be printed with sys.stdout.write()
+    Raises:
+        SyntaxError: Non-python characters is used as input
+        NameError:   If some variable isn't already defined
+
+    Example usage:
+    >>> from feedline import feedline
+    >>> feedline('x=2')
+    'in [1]:'
+    >>> feedline('x**2')
+    'out[2]:4\nin [2]:'
+    >>> print feedline('x**2')
+    out[3]:4
+    in [3]:
+    """
     if not isinstance(string_command, basestring):
         "The input argument must be a string! Exiting!"; sys.exit(1)
     output = None; eval_used = True
@@ -37,27 +60,31 @@ def feedline(string_command,return_all_history=False):
                 sys.stdout.write('\nSaving command history as "%s"' %magic_save_filename)
 
     if char0 == '!':
+        # Pass the command to the operating system
         string_command = string_command[1:] # Remove the exclamation mark
         output = subprocess.Popen(string_command, shell=True,
                            stdout=subprocess.PIPE).communicate()[0]
         magic  = True
     if last_char == '?':
+        # Display the docstring of the object
         string_command = string_command[0:-1] # Remove question mark
         help(string_command)
         magic = True
     if magic_save:
+        # Save the command history to file
         save_file = open(magic_save_filename, "w")
         for command in namespace['cmd_history']:
             save_file.write(command + "\n")
         save_file.close()
         magic = True
-    if not magic:
+    if not magic: # Only evaluate if string_command is python code
         try:
+            # Evaluate string as python code
             output = eval(string_command,namespace)
         except SyntaxError:
             try:
                 oldio, sys.stdout = sys.stdout, StringIO() # Swap stdout with StringIO Instance
-                exec(string_command, namespace)
+                exec(string_command, namespace) # Execute string as python code
                 output = sys.stdout.getvalue() # Get stdout buffer
                 sys.stdout = oldio # Reset stdout
                 eval_used = False
@@ -77,6 +104,7 @@ def feedline(string_command,return_all_history=False):
             else:
                 return "Error: %s" %err + "\n" + "in [%d]:" %l_n
 
+    # Mainly for webapp, where a single string containing the whole history is returned
     if return_all_history:
         if eval_used and not magic:
             string_out = string_command +'\n' + "out[%d]:" %l_n + str(output) + "\n" + "in [%d]:" %l_n

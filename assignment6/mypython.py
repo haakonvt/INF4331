@@ -3,6 +3,22 @@ from getchar  import getchar
 import sys, re
 
 def prompt():
+    """
+    IPython clone with all the basic python shell possibilites.
+
+    Args:
+        None
+    Returns:
+        Nothing
+
+    Example usage
+    >>> python mypython.py
+    Welcome to mypython!
+    in [0]:from math import cos, pi
+    in [1]:x = pi/2.0
+    in [2]:cos(x**2)
+    out[3]:-0.78121189211
+    """
     sys.stdout.write("Welcome to mypython!\nin [0]:")
     sys.stdout.write("")
     line = ""
