@@ -1,11 +1,12 @@
 namespace = vars().copy()
 namespace['line_number'] = 0
 namespace['cmd_history'] = []
+namespace['_all_output'] = 'in [0]'
 
 import sys, subprocess
 from StringIO import StringIO
 
-def feedline(string_command):
+def feedline(string_command,return_all_history=False):
     if not isinstance(string_command, basestring):
         "The input argument must be a string! Exiting!"; sys.exit(1)
     output = None; eval_used = True
@@ -62,17 +63,42 @@ def feedline(string_command):
                 eval_used = False
             except Exception as err:
                 sys.stdout = oldio # Reset stdout
-                return "Error: %s" %err + "\n" + "in [%d]:" %l_n
+                if return_all_history:
+                    string_out = string_command +'\n' + "Error: %s" %err + "\n" + "in [%d]:" %l_n
+                    namespace['_all_output'] += string_out
+                    return namespace['_all_output']
+                else:
+                    return "Error: %s" %err + "\n" + "in [%d]:" %l_n
         except Exception as err:
-            return "Error: %s" %err + "\n" + "in [%d]:" %l_n
+            if return_all_history:
+                string_out = string_command + '\n' + "Error: %s" %err + "\n" + "in [%d]:" %l_n
+                namespace['_all_output'] += string_out
+                return namespace['_all_output']
+            else:
+                return "Error: %s" %err + "\n" + "in [%d]:" %l_n
 
-    if eval_used and not magic:
-        return "out[%d]:" %l_n + str(output) + "\n" + "in [%d]:" %l_n
-    else:
-        if not output:
-            return 'in [%d]:' %l_n
+    if return_all_history:
+        if eval_used and not magic:
+            string_out = string_command +'\n' + "out[%d]:" %l_n + str(output) + "\n" + "in [%d]:" %l_n
+            namespace['_all_output'] += string_out
+            return namespace['_all_output']
         else:
-            return str(output) + 'in [%d]:' %l_n
+            if not output:
+                string_out = string_command + '\n' + 'in [%d]:' %l_n
+                namespace['_all_output'] += string_out
+                return namespace['_all_output']
+            else:
+                string_out = string_command + '\n' + str(output) + 'in [%d]:' %l_n
+                namespace['_all_output'] += string_out
+                return namespace['_all_output']
+    else:
+        if eval_used and not magic:
+            return "out[%d]:" %l_n + str(output) + "\n" + "in [%d]:" %l_n
+        else:
+            if not output:
+                return 'in [%d]:' %l_n
+            else:
+                return str(output) + 'in [%d]:' %l_n
 
 if __name__ == '__main__':
     print feedline("print 'hello world'")

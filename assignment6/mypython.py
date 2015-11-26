@@ -80,20 +80,21 @@ def prompt():
                 char_to_screen = False
                 char_to_line   = False
                 matches = []
-                if line:
+                line_to_match = re.split(r'[^\w\d%]+',line)[-1]
+                if line_to_match:
                     for variable in namespace:
-                        if variable.startswith(line):
+                        if variable.startswith(line_to_match):
                             matches.append(variable)
                 if len(matches) == 1: # Only one match: Use it!
                     perfect_match = matches[0]
                     # Print the rest of the characters:
-                    sys.stdout.write(perfect_match[len(line):])
-                    line = perfect_match
+                    sys.stdout.write(perfect_match[len(line_to_match):])
+                    line += perfect_match[len(line_to_match):]
                 elif len(matches) > 1:
                     sys.stdout.write("\n")
                     for possible_match in matches:
                         sys.stdout.write(possible_match+"  ")
-                    sys.stdout.write('\n' + feedline('') + line)
+                    sys.stdout.write('\n' + feedline('') + line_to_match)
 
         if char_to_screen:
             sys.stdout.write(char) # ... and print that character to screen

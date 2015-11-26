@@ -29,8 +29,8 @@ def my_form():
 
 @app.route('/', methods=['POST'])
 def my_form_post():
-    current_output = feedline(request.form['text'])
-    current_output = re.sub('\n','<br>',current_output) # Change \n to <br>
+    all_output = feedline(request.form['text'],True)
+    all_output = re.sub('\n','<br>',all_output) # Change \n to <br>
     html = """
     <html>
        <head>
@@ -51,7 +51,7 @@ def my_form_post():
             </form>
             </div>
        </body>
-    </html>""" %(current_output)
+    </html>""" %(all_output)
     return html
 
 
