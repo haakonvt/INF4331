@@ -1,0 +1,79 @@
+\documentclass[a4paper]{article}
+
+% Import some useful packages
+\usepackage[margin=0.5in]{geometry} % narrow margins
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\definecolor{LightGray}{gray}{0.95}
+
+\title{Peer-review of assignment 6 for \textit{INF3331-ReviewedRepo}}
+\author{Reviewer 1, Git-repo INF3331-Daniel, {danielfolgero@gmail.com},\\ The other reviewers didn't need to do this exercise.}
+\date{Deadline: Tuesday, 8. December 2015, 23:59:59.}
+
+\begin{document}
+\maketitle
+
+\section{Review}\label{sec:review}
+
+Windows 8.1  with Python 2.7.10 and the linux machines on ifi.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.1: Feed line to Python}
+Working as intended. \\
+Good amount of comments and nice docstring.\\
+Clean, but compact code. It wouldn't hurt with a few more spaces.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.2: Create basic interface} \label{sec:assignment6.2}
+Works as intended.\\
+good docstring, nice amount of comments.\\
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.3: Error handling}
+Works as intended
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.4:  Control sequence}
+Works as intended.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.5: Up and down characters and command history}
+Works as intended.\\
+There is a lot of very similar code repeated here which maked me think you could have made a method or had 
+some code outside the if/else to get less and cleaner code.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.6: Magic commands}
+Works as intended.\\
+Good amount of comments.\\
+Look at the comment in 6.7 regarding displaying docstrings.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.7: Webinterface}
+I didn't get Flask to work on the linux machines on Ifi so I couln't test this.\\
+It looks like it will work fine tho.\\
+A few points here:\\
+- You could have put the html code in templates which would have made the code a bit more tidy, but this was not required.\\
+- I didn't get to test it, but i suspect the webinterface will crash if you try to display the docstrings
+  from the webinterface since you dont return a string with the docstring but prints it out with the command
+  window which have to be exited by q.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.8: Tab completion}
+Works as intended.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Assignment 6.9: Backspace}
+Works as intended.
+
+
+\bibliographystyle{plain}
+\bibliography{literature}
+
+\end{document}
